@@ -558,6 +558,22 @@ footer h5{
     margin-top: 20px;
 }
 
+
+input::placeholder {
+   opacity: 1;
+   color: black;
+   font-family: 'lato',sans-serif;
+   font-size: medium;
+   font-weight: 700;
+}
+textarea::placeholder {
+   opacity: 1;
+   color: black;
+   font-family: 'lato',sans-serif;
+   font-size: medium;
+   font-weight: 700;
+}
+
 @media all and (max-width:786px){
 
     .toggle{
@@ -713,3 +729,4 @@ footer h5{
     width: 100%;
     }
 }
+

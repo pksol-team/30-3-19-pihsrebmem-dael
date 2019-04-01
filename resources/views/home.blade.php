@@ -189,8 +189,8 @@
                     </div>
                     <div class="col-12">
                         <div class="row">
-                            <div class="col-lg-4"></div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3"></div>
+                            <div class="col-lg-6">
                             <input type="email" name="email" placeholder="YOUR EMAIL ADDRESS">
                             <input type="text" name="email" placeholder="FULL NAME">
                             <textarea>MESSAGE</textarea>
@@ -200,7 +200,7 @@
                                 </div>
                             </div>
                             </div>
-                            <div class="col-lg-4"></div>
+                            <div class="col-lg-3"></div>
                         </div>
                     </div>
                 </div>
