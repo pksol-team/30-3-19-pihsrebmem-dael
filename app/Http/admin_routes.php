@@ -12,6 +12,10 @@ Route::post('/frontend/register_check', 'IndexController@register_check');
 Route::get('/profile', 'IndexController@profile');
 
 
+/* ================== Payment Integration ================== */
+Route::post('/payment_integration', 'IndexController@payment_integration');
+
+Route::get('paypal', array('as' => 'payment.status','uses' => 'IndexController@getPaymentStatus',));
 
 
 
@@ -78,10 +82,6 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 
 
 
-	/* ================== Email Template ================== */
-		
-		Route::get(config('laraadmin.adminRoute'). '/email_template', 'IndexController@mail_template_page');
-
 	
 	/* ================== Dashboard ================== */
 	
@@ -135,12 +135,17 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	Route::get(config('laraadmin.adminRoute') . '/membership_dt_ajax', 'LA\MembershipsController@dtajax');
 
 
-	/* ================== Offers ================== */
-	Route::resource(config('laraadmin.adminRoute') . '/offers', 'LA\OffersController');
-	Route::get(config('laraadmin.adminRoute') . '/offer_dt_ajax', 'LA\OffersController@dtajax');
+
+
+
+
+
+
+	/* ================== Email_Templates ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/email_templates', 'LA\Email_TemplatesController');
+	Route::get(config('laraadmin.adminRoute') . '/email_template_dt_ajax', 'LA\Email_TemplatesController@dtajax');
+
+	/* ================== Upload_Offers ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/upload_offers', 'LA\Upload_OffersController');
+	Route::get(config('laraadmin.adminRoute') . '/upload_offer_dt_ajax', 'LA\Upload_OffersController@dtajax');
 });
-
-
-
-
-

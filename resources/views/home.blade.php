@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>LEADS-MEMBERSHIP</title>
@@ -11,66 +11,70 @@
 </head>
 
 <body data-spy="scroll" data-offset="0" data-target="#navigation">
+ --}}
 
+ @extends('frontend.template.layout')
+ @section('title') {{ 'Home' }} @stop
+ @section('content')
 
-    <header id="main-header">
-    <div class="container-fluid top">
-        <div class="container">
-            <div class="row">
-                <div id="top1" class="col-6 col-sm-6 col-md-6 col-lg-6">
-                    <ul>
-                        <li><a href=""><i class="fab fa-facebook-square"></i></a></li>
-                        <li><a href=""><i class="fab fa-twitter-square"></i></a></li>
-                        <li><a href=""><i class="fab fa-google-plus-square"></i></a></li>
-                        <li><a href=""><i class="fab fa-youtube-square"></i></a></li>
-                    </ul>
-                </div>
-                <div id="top2" class="col-6 col-sm-6 col-md-6 col-lg-6">    
-                    <p>Call Now: +1 (602) 399 7964</p>
-                </div>      
-            </div>
-        </div>  
-    </div>
-    <div class="navigation">
-        <div class="container-fluid">
+    {{-- <header id="main-header">
+        <div class="container-fluid top">
             <div class="container">
                 <div class="row">
-                    <div id="logo" class="col-4 col-sm-4 col-md-4 col-lg-4">
-                        <img src="assets\images\logo.png">
+                    <div id="top1" class="col-6 col-sm-6 col-md-6 col-lg-6">
+                        <ul>
+                            <li><a href=""><i class="fab fa-facebook-square"></i></a></li>
+                            <li><a href=""><i class="fab fa-twitter-square"></i></a></li>
+                            <li><a href=""><i class="fab fa-google-plus-square"></i></a></li>
+                            <li><a href=""><i class="fab fa-youtube-square"></i></a></li>
+                        </ul>
                     </div>
-                    <div id="nav" class="col-8 col-sm-8 col-md-8 col-lg-8s">
-                        <nav>
-                            <div class="toggle">
-                                <div class="menu"><i class="fas fa-bars"></i>
+                    <div id="top2" class="col-6 col-sm-6 col-md-6 col-lg-6">    
+                        <p>Call Now: +1 (602) 399 7964</p>
+                    </div>      
+                </div>
+            </div>  
+        </div>
+        <div class="navigation">
+            <div class="container-fluid">
+                <div class="container">
+                    <div class="row">
+                        <div id="logo" class="col-4 col-sm-4 col-md-4 col-lg-4">
+                            <img src="assets\images\logo.png">
+                        </div>
+                        <div id="nav" class="col-8 col-sm-8 col-md-8 col-lg-8s">
+                            <nav>
+                                <div class="toggle">
+                                    <div class="menu"><i class="fas fa-bars"></i>
+                                    </div>
                                 </div>
-                            </div>
-                            <ul>
-                                <li><a href="/">Home</a></li>
-                                @if (!Auth::user())
-                                    <li><a href="/signin">Login</a></li>
-                                    <li><a href="/signup"><button>BECOME A MEMBER</button></a></li>
-                                @else
-                                <li><a href="{{ url('/profile') }}">Profile</a></li>
-                                <li><a href="{{ url('/logout') }}">Logout</a></li>
-                                @endif
-                            </ul>
-                        </nav>
-                            <script
-                            src="https://code.jquery.com/jquery-3.3.1.js"></script>
-                            <script type="text/javascript">
-                            $(document).ready(function() {
-                                $('.menu').click(function() {
-                                    
-                                    $('ul').toggleClass('active');
+                                <ul>
+                                    <li><a href="/">Home</a></li>
+                                    @if (!Auth::user())
+                                        <li><a href="/signin">Login</a></li>
+                                        <li><a href="/signup"><button>BECOME A MEMBER</button></a></li>
+                                    @else
+                                    <li><a href="{{ url('/profile') }}">Profile</a></li>
+                                    <li><a href="{{ url('/logout') }}">Logout</a></li>
+                                    @endif
+                                </ul>
+                            </nav>
+                                <script
+                                src="https://code.jquery.com/jquery-3.3.1.js"></script>
+                                <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('.menu').click(function() {
+                                        
+                                        $('ul').toggleClass('active');
+                                    });
                                 });
-                            });
-                            </script>
+                                </script>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </header>
+    </header> --}}
     
     <div class="body_wrapper">
         <div class="container-fluid">
@@ -82,8 +86,13 @@
                         <p>This is Photoshop's version  of Lorem Ipsum. Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate a 
                         amet mauris. Morbi accumsan ipsum velit. </p>
                         <div class="buttonban">
-                            <a href=""><button>LOGIN</button></a>
-                            <span><a href=""><button>SIGNUP</button></a></span>
+
+                            @if (!Auth::user())           
+                            <a href="/signin"><button>LOGIN</button></a>
+                            <span><a href="/signup"><button>SIGNUP</button></a></span>
+                            @else
+                            <a href="{{ url('/logout') }}"><button>Logout</button></a>
+                            @endif
                         </div>
 
                     </div>
@@ -152,8 +161,15 @@
                         <h1>Set Your Campaign on “Automatic” and Let Our System Do The Work For You</h1>
                         <p>This is Photoshop's version  of Lorem Ipsum. Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit. Duis sed odio sit amet nibh vulputate cursus a sit amet mauris. Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a ornare odio. </p>
                         <div class="buttonban1">
-                            <a href=""><button>LOGIN</button></a>
-                            <span><a href=""><button>SIGNUP</button></a></span>
+                            @if (!Auth::user())
+                              
+                            <a href="/signin"><button>LOGIN</button></a>
+                            <span><a href="/signup"><button>SIGNUP</button></a></span>
+                            @else
+                            <a href="{{ url('/logout') }}"><button>Logout</button></a>
+                            @endif
+                           {{--  <a href=""><button>LOGIN</button></a>
+                            <span><a href=""><button>SIGNUP</button></a></span> --}}
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -176,8 +192,14 @@
                             <li class="purple">A sit amet mauris. Morbi accumsan ipsum velit. Nam nec tellus </li>
                         </ul>
                         <div class="buttonban3">
-                            <a href=""><button>LOGIN</button></a>
-                            <span><a href=""><button>SIGNUP</button></a></span>
+                            @if (!Auth::user())
+                            <a href="/signin"><button>LOGIN</button></a>
+                            <span><a href="/signup"><button>SIGNUP</button></a></span>
+                            @else
+                            <a href="{{ url('/logout') }}"><button>Logout</button></a>
+                            @endif
+                            {{-- <a href=""><button>LOGIN</button></a>
+                            <span><a href=""><button>SIGNUP</button></a></span> --}}
                         </div>
                     </div>
                 </div>
@@ -210,15 +232,21 @@
                     <div class="col-12">
                         <h1>Let’s Start With Last Deposit  $20</h1>
                         <div class="buttonban2">
-                            <a href=""><button>LOGIN</button></a>
-                            <span><a href=""><button>SIGNUP</button></a></span>
+                            @if (!Auth::user())
+                            <a href="/signin"><button>LOGIN</button></a>
+                            <span><a href="/signup"><button>SIGNUP</button></a></span>
+                            @else
+                            <a href="{{ url('/logout') }}"><button>Logout</button></a>
+                            @endif
+                           {{--  <a href=""><button>LOGIN</button></a>
+                            <span><a href=""><button>SIGNUP</button></a></span> --}}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <footer>
+   {{--  <footer>
         <div class="container">
             <div class="row">
                 <div class="col-lg-4">
@@ -265,6 +293,6 @@
         }
     });
 });
-</script>
+</script> --}}
 </body>
 </html>

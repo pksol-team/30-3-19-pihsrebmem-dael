@@ -9,16 +9,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Offer extends Model
-{	
-
+class Upload_Offer extends Model
+{
     use SoftDeletes;
 	
-	protected $table = 'offers';
-	
-	protected $fillable = ['id', 'membership_name', 'type', 'cost', 'membership_level'];
-	
-	public $primaryKey = 'id';
+	protected $table = 'upload_offers';
+
+	 protected $fillable = ['membership_id', 'file'];
 	
 	protected $hidden = [
         
@@ -28,8 +25,7 @@ class Offer extends Model
 
 	protected $dates = ['deleted_at'];
 
-
 	public function memberships(){
-	     return $this->belongsTo('App\Models\Membership', 'id');
+	     return $this->belongsTo('App\Models\Membership', 'membership_id');
 	}
 }

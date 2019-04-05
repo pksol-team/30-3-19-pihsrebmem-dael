@@ -1,14 +1,14 @@
 @extends("la.layouts.app")
 
-@section("contentheader_title", "Offers")
-@section("contentheader_description", "Offers listing")
-@section("section", "Offers")
+@section("contentheader_title", "Upload Offers")
+@section("contentheader_description", "Upload Offers listing")
+@section("section", "Upload Offers")
 @section("sub_section", "Listing")
-@section("htmlheader_title", "Offers Listing")
+@section("htmlheader_title", "Upload Offers Listing")
 
 @section("headerElems")
-@la_access("Offers", "create")
-	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Offer</button>
+@la_access("Upload_Offers", "create")
+	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Upload Offer</button>
 @endla_access
 @endsection
 
@@ -45,15 +45,15 @@
 	</div>
 </div>
 
-@la_access("Offers", "create")
+@la_access("Upload_Offers", "create")
 <div class="modal fade" id="AddModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Add Offer</h4>
+				<h4 class="modal-title" id="myModalLabel">Add Upload Offer</h4>
 			</div>
-			{!! Form::open(['action' => 'LA\OffersController@store', 'id' => 'offer-add-form']) !!}
+			{!! Form::open(['action' => 'LA\Upload_OffersController@store', 'id' => 'upload_offer-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
                     @la_form($module)
@@ -87,7 +87,7 @@ $(function () {
 	$("#example1").DataTable({
 		processing: true,
         serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/offer_dt_ajax') }}",
+        ajax: "{{ url(config('laraadmin.adminRoute') . '/upload_offer_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
@@ -97,7 +97,7 @@ $(function () {
 		columnDefs: [ { orderable: false, targets: [-1] }],
 		@endif
 	});
-	$("#offer-add-form").validate({
+	$("#upload_offer-add-form").validate({
 		
 	});
 });

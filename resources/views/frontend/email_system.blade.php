@@ -9,25 +9,38 @@
 
 @section("main-content")
 
+
+
 <div class="box box-success">
 	<!--<div class="box-header"></div>-->
 	<div class="box-body">
 		<div class="modal-dialog" role="document">
+			@if (Session::has('message'))
+			<div class="modal-content message_text">
+			        <div class="panel panel-success">
+			            <div class="panel-heading panel-heading-custom">		
+			                <h3 class="panel-title" style="text-align: center;">{!! session('message') !!}</h3>
+			                <i class="fa fa-close close_styling"></i>
+			            </div>
+			        </div>
+			</div>
+			@endif
+	
 		<div class="modal-content">
 			<div class="modal-header">
 			
 				<h4 class="modal-title" id="myModalLabel">Add Email</h4>
 			</div>
-			{!! Form::open(['action' => 'LA\OffersController@store', 'id' => 'offer-add-form']) !!}
+			{!! Form::open(['action' => 'IndexController@send_mail', 'id' => 'offer-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
 					<div class="form-group">
 						<label for="membership_id">Select Option :</label>
-						<select class="form-control select2-hidden-accessible email_option" data-placeholder="Enter Membership" rel="select2" name="membership_id" tabindex="-1" aria-hidden="true">
+						<select class="form-control select2-hidden-accessible email_option" data-placeholder="Enter Membership" rel="select2" name="membership_id" tabindex="-1" aria-hidden="true" required="true">
 							<option value="">Select Option</option>
-							<option value="1">Specific Member</option>
-							<option value="2">For Membership</option>
-							<option value="3">All Members</option>
+							<option value="single_memeber">Specific Member</option>
+							<option value="membership_cat">For Membership</option>
+							<option value="all_members">All Members</option>
 						</select>
 					</div>
 					
@@ -42,7 +55,7 @@
 
 					<div class="form-group option_2" style="display: none;">
 						<label for="membership_id">Select Option :</label>
-						<select class="form-control select2-hidden-accessible email_option" data-placeholder="Enter Membership" rel="select2" name="membership_id" tabindex="-1" aria-hidden="true">
+						<select class="form-control select2-hidden-accessible " data-placeholder="Enter Membership" rel="select2" name="membership_id" tabindex="-1" aria-hidden="true" required="true">
 							<option value="">Select Option</option>
 							@foreach ($membership as $value)
 								<option value="{{ $value->id }}">{{ $value->membership_name }}</option>
@@ -50,10 +63,14 @@
 						</select>
 					</div>
 
-					
+				<div class="form-group">
+					<label for="subject">Subject</label>
+					<input class="form-control" placeholder="Enter Subject" data-rule-maxlength="256" required="1" name="subject" type="text" value="" aria-required="true">
+				</div>
 
-            	<textarea name="question_ask" id="question_ask" cols="50" rows="100" class="question_ask form-control"></textarea>
-                    
+            	<textarea name="question_ask" id="question_ask" cols="50" rows="100" class="question_ask form-control" required="true"></textarea>
+                 
+                 <input type="hidden" name="option" value="">   
 					
 				</div>
 			</div>
@@ -102,21 +119,28 @@
 		$(document).on('change', '.email_option', function(event) {
 			event.preventDefault();
 			var option = $(this).val();
-			if(option == 1){
+			if(option == 'single_memeber'){
 
 				$('div.option_1').show();
 				$('div.option_2').hide();
-			}
-			else if(option == 2){
-				$('div.option_2').show();
-				$('div.option_1').hide();
+				$('select[name="membership_id"]').removeAttr('required');
 
 			}
-			else if(option == 3){
+			else if(option == 'membership_cat'){
+				$('div.option_2').show();
+				$('div.option_1').hide();
+				$('input[name="specific_email"]').removeAttr('required');
+
+			}
+			else if(option == 'all_members'){
 				$('div.option_2').hide();
 				$('div.option_1').hide();
+				$('input[name="specific_email"]').removeAttr('required');
+				$('select[name="membership_id"]').removeAttr('required');
 				
 			}
+				$('input[name="option"]').val(option);
+
 		
 		});
 
@@ -133,7 +157,8 @@
 				},
 			})
 			.done(function(response) {
-				$(".show_email_list").html(response);
+				console.log(response);
+				$(".show_email_list").html(response).show();
 			});
 			
 		});
@@ -147,24 +172,32 @@
 			$('.search_by_email').val(email);
 
 		});
+
+		$(".search_by_email").focusout(function(){
+		    if($('.show_email_list li').html() == 'No Email Found...'){
+			    console.log("click");
+			    $('.show_email_list').hide();		    	
+		    }
+		});
+
+		$(document).on('click', '.close_styling', function(event) {
+			$('.message_text').fadeOut('slow', function() {
+				$(this).remove();
+			});
+		});
 	});
-// $(function () {
-// 	$("#example1").DataTable({
-// 		processing: true,
-//         serverSide: true,
-//         ajax: "{{ url(config('laraadmin.adminRoute') . '/offer_dt_ajax') }}",
-// 		language: {
-// 			lengthMenu: "_MENU_",
-// 			search: "_INPUT_",
-// 			searchPlaceholder: "Search"
-// 		},
-// 		{{-- @if($show_actions)
-// 		columnDefs: [ { orderable: false, targets: [-1] }],
-// 		@endif --}}
-// 	});
-// 	$("#offer-add-form").validate({
-		
-// 	});
-// });
+
 </script>
+
+<style>
+	
+	/* session close*/
+	.close_styling{
+	    position: absolute; 
+	    top: 5%; 
+	    left: 95%; 
+	    font-size: 20px;
+	    cursor: pointer;
+	}
+</style>
 @endpush

@@ -56,7 +56,7 @@
                 @endif
             @endforeach
             <li><a href="{{ url(config('laraadmin.adminRoute')) }}/mailing_system"><i class='fa fa-envelope'></i> <span>Mailing System</span></a></li>
-            <li><a href="{{ url(config('laraadmin.adminRoute')) }}/email_template"><i class='fa fa-envelope'></i> <span>Email Template</span></a></li>
+           {{--  <li><a href="{{ url(config('laraadmin.adminRoute')) }}/email_template"><i class='fa fa-envelope'></i> <span>Email Template</span></a></li> --}}
 
             <!-- LAMenus -->
             
