@@ -155,6 +155,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Srmklive\PayPal\Providers\PayPalServiceProvider::class,
         Dwij\Laraadmin\LAProvider::class,
 
     ],
@@ -202,6 +203,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'PayPal' => Srmklive\PayPal\Facades\PayPal::class,
 
     ],
 

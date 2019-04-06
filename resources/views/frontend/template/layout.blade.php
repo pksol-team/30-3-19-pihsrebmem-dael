@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets\css\reset.css">
-    <link rel="stylesheet" type="text/css" href="assets\css\style.css">
+    <link rel="stylesheet" type="text/css" href="assets\css\style.css?time=<?= time(); ?>">
 
 
 
@@ -156,27 +156,36 @@
             /* Act on the event */
         });
 
-        $(document).on('click', 'a.upgrade_memebership', function(event) {
-            event.preventDefault();
-            if($(this).hasClass('disabled')){
-                $(this).off('click');                            
-            }else{
-                var membership_name = $(this).attr('data-name');
-                var membership_cost = $(this).attr('data-price');
-                var membership_id = $(this).attr('data-id');
+        // $(document).on('click', 'a.upgrade_memebership', function(event) {
+        //     event.preventDefault();
+        //     if($(this).hasClass('disabled')){
+        //         $(this).off('click');                            
+        //     }else{
+        //         var membership_name = $(this).attr('data-name');
+        //         var membership_cost = $(this).attr('data-price');
+        //         var membership_id = $(this).attr('data-id');
 
-                $('input[name=membership_name]').val(membership_name);
-                $('input[name=membership_cost]').val(membership_cost);
-                $('input[name=membership_id]').val(membership_id);
-                $('.pay_option_div').show();
-            }
-        });
+        //         $('input[name=membership_name]').val(membership_name);
+        //         $('input[name=membership_cost]').val(membership_cost);
+        //         $('input[name=membership_id]').val(membership_id);
+        //         $('.pay_option_div').show();
+        //     }
+        // });
+
+       
 
 
-        $( "input" ).on( "click", function() {
+        $( "input[name='payment_method_']" ).on( "click", function() {
           var payment_mehtod = $( "input:checked" ).val()
           // console.log(payment_mehtod);
             if(payment_mehtod == 'stripe'){
+
+
+                $('input[name="number"]').attr('required', 'true');
+                $('input[name="cvc"]').attr('required', 'true');
+                $('input[name="exp_month"]').attr('required', 'true');
+                $('input[name="exp_year"]').attr('required', 'true');
+                $('input[name="client_name"]').attr('required', 'true');
                 
                 console.log('testing');
                 $(".strip_data").show();
@@ -187,12 +196,12 @@
 
                 var $form = $("#form_data");
 
-                    console.log($form);
                 $form.submit(function(event) {
-               
+                    
+                    event.preventDefault();
                   $('#charge-error').addClass('hidden');
                   $form.find('input[type="submit"]').prop('disabled', true);
-
+                    // console.log("loop");
                   Stripe.card.createToken({
                     number: $('input[name="number"]').val(),
                     cvc: $('input[name="cvc"]').val(),
@@ -204,15 +213,18 @@
                 });
 
                 function stripeResponseHandler(status, response){
-                  console.log(response.error);
+                  // console.log(response.error);
                   if(response.error){
                     $('#charge-error').removeClass('hidden');
                     $('#charge-error').text(response.error.message);
+                    // console.log("fail");
                     $form.find('input[type="submit"]').prop('disabled', false);
                   }
                   else{
                       var token = response.id;
                       $form.append($('<input type="hidden" name="stripe_token" >').val(token));
+
+                    // console.log("testing");
 
                       $form.get(0).submit();
 
@@ -220,11 +232,21 @@
                 }
 
             }else{
+                $('input[name="number"]').removeAttr('required');
+                $('input[name="cvc"]').removeAttr('required');
+                $('input[name="exp_month"]').removeAttr('required');
+                $('input[name="exp_year"]').removeAttr('required');
+                $('input[name="client_name"]').removeAttr('required');
                 $(".strip_data").hide();
+
                 $(".payment_stripe").val('Proceed to checkout');            
             }
         
         });
+
+      $('.disabled').find('div.freebtn form input[type="submit"]').attr('disabled','disabled');
+      $('.disabled').find('div.freebtn form input[type="submit"]').css('cursor', 'not-allowed');
+
     });
 
 </script>

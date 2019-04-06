@@ -5,6 +5,7 @@
 <?php use App\Http\Controllers\Frontend\IndexController; ?>
 <?php use Illuminate\Support\Collection; ?>
 
+@section('class') {{ 'class=subscription' }} @stop
 
 <div class="body_wrapper">
         <div class="container-fluid">
@@ -18,7 +19,7 @@
 				@endif
 	
 
-	<div class="upgrade_account" style="display: none;">
+	{{-- <div class="upgrade_account" style="display: none;">
 		<span class="close_upgrade">x</span>
 		<p>Upgrade your system</p> 
 		@foreach ($membership as $package)
@@ -26,8 +27,8 @@
 			@endif
 			<a href="#" data-price='{{ $package->cost }}' data-name='{{ $package->membership_name }}' data-id='{{ $package->id }}' class="upgrade_memebership {{ (Auth::user()->membership_id == $package->id)? 'disabled': '' }}">{{ $package->membership_name }}</a> : {{ $package->cost }} <br>
 		@endforeach
-	</div>
-	<div class="pay_option_div" style="display: none;">
+	</div> --}}
+	{{-- <div class="pay_option_div" style="display: none;">
 		{!! Form::open(['action' => 'IndexController@payment_integration', 'id' => 'form_data']) !!}
 		<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
 		<input type="hidden" name="membership_cost" value="">
@@ -86,7 +87,8 @@
 		</div>
 		{!! Form::submit( 'Proceed to checkout', ['class'=>'btn btn-success payment_stripe']) !!}
 		{!! Form::close() !!}
-	</div>
+	</div> --}}
+	
 				@php	
 					$user_memebership = Auth::user()->membership_id;
 					$user_memebership_level = $membership_level;
@@ -116,6 +118,7 @@
 									}	
 							if($list->membership_id != Auth::user()->membership_id){
 								
+									// exit();
 								if($membership_level >= $list->memberships->membership_level){
 									@endphp
 										<td><a href ="{{ $link }}"> {{ $name }}</a></td>
@@ -128,7 +131,7 @@
 									@endphp
 								<td>
 									{{-- <a data-toggle="modal" data-target="#myModal"> {{ $name }} </a> --}}
-									<a class="upgrade" data-toggle="modal" data-target="#myModal"> {{ $name }} </a>
+									<a data-toggle="modal" data-target="#myModal"> {{ $name }} </a>
 								</td>
 								@php
 								}
@@ -161,117 +164,204 @@
 </div>
 
 
-  										<!-- The Modal -->
-  										<div class="modal" id="myModal">
-    										<div class="modal-dialog">
-      												<div class="modal-content">
-      
-        												<!-- Modal Header -->
-        												<div class="modal-header">
-          												<h4 class="modal-title">Upgrade Your Account</h4>
-          												<button type="button" class="close" data-dismiss="modal">&times;</button>
-        												</div>
-        
-        												<!-- Modal body -->
-        												<div class="modal-body">
-          												<div class="row">
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>FREE</span>
-																		<h1>Free</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Fee Plan</span>
-																	</div>
-																	<div class="freebtn">
-																	<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>GOLD</span>
-																		<h1>$100</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Gold Plan</span>
-																	</div>
-																	<div class="freebtn">
-																		<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>PLATNIUM</span>
-																		<h1>$500</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Platinum Plan</span>
-																	</div>
-																	<div class="freebtn">
-																		<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-														</div>
-														<div id="modal-line-2" class="row">
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>FREE</span>
-																		<h1>Free</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Fee Plan</span>
-																	</div>
-																	<div class="freebtn">
-																	<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>GOLD</span>
-																		<h1>$100</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Gold Plan</span>
-																	</div>
-																	<div class="freebtn">
-																		<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-															<div class="col-lg-4">
-																<div class="borderimage text-center">
-																	<div class="free">
-																		<span>PLATNIUM</span>
-																		<h1>$500</h1>
-																	</div>
-																	<div class="fee-plan">
-																		<span>Platinum Plan</span>
-																	</div>
-																	<div class="freebtn">
-																		<a href="#">SIGN UP</a>
-																	</div>
-																</div>
-															</div>
-														</div>
-        
-        												<!-- Modal footer -->
-        												<div class="modal-footer">
-        													<div class="text-center">
-          														<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-        													</div>
-        												</div>
-       												</div>
-      										</div>
-  										</div>
+@php
+
+    $membership = DB::table('memberships')->whereNull('deleted_at')->get();
+
+	$membership_count = count($membership);
+
+if($membership_count > 3){
+  if($membership_count/3 > round($membership_count/3)){
+    $total_rows = (round($membership_count/3)) + 1 ;
+  }else{
+    $total_rows = round($membership_count/3);
+  }
+         
+}
+else{
+  $total_rows = 1;
+}  
+
+	@endphp
+	
+	<div class="modal" id="myModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Upgrade Your Account</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">					
+					@for ($i = 0; $i < $total_rows ; $i++)					
+					
+						@php
+							$starting = $i*3;
+						    $membership = DB::table('memberships')->whereNull('deleted_at')->skip($starting)->take(3)->get();
+						    $count = count($membership);
+						    if($count){
+						    	@endphp
+						    	<div class="row">
+						    		@if ($count == 1)
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[0]->cost }}/-</span>
+							    					<h1>{{ $membership[0]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[0]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else 
+
+								    					{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+								    					<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+								    					<input type="hidden" name="membership_cost" value="{{ $membership[0]->cost }}">
+								    					<input type="hidden" name="membership_name" value="{{ $membership[0]->membership_name }}">
+								    					<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
+								    					{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+								    					{!! Form::close() !!}
+							    					@endif
+							    				</div>
+							    			</div>
+							    		</div>	
+							    	@elseif($count == 2)
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[0]->cost }}/-</span>
+							    					<h1>{{ $membership[0]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[0]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else
+							    						{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+							    						<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+							    						<input type="hidden" name="membership_cost" value="{{ $membership[0]->cost }}">
+							    						<input type="hidden" name="membership_name" value="{{ $membership[0]->membership_name }}">
+							    						<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
+							    						{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+							    						{!! Form::close() !!}	
+							    					{{-- <span><a class="purchase">PURCHASE</a></span> --}}
+							    					@endif
+							    				</div>
+							    			</div>
+							    		</div>
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[1]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[1]->cost }}/-</span>
+							    					<h1>{{ $membership[1]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[1]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else
+						    							{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+						    							<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+						    							<input type="hidden" name="membership_cost" value="{{ $membership[1]->cost }}">
+						    							<input type="hidden" name="membership_name" value="{{ $membership[1]->membership_name }}">
+						    							<input type="hidden" name="membership_id" value="{{ $membership[1]->id }}">
+						    							{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+						    							{!! Form::close() !!}	
+							    					@endif
+							    				</div>
+							    				</div>
+							    		</div>
+							    	@elseif($count == 3)
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[0]->cost }}/-</span>
+							    					<h1>{{ $membership[0]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[0]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else
+							    						{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+							    						<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+							    						<input type="hidden" name="membership_cost" value="{{ $membership[0]->cost }}">
+							    						<input type="hidden" name="membership_name" value="{{ $membership[0]->membership_name }}">
+							    						<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
+							    						{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+							    						{!! Form::close() !!}
+							    					@endif
+							    				</div>
+							    			</div>
+							    		</div>
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[1]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[1]->cost }}/-</span>
+							    					<h1>{{ $membership[1]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[1]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else
+								    					{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+								    					<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+								    					<input type="hidden" name="membership_cost" value="{{ $membership[1]->cost }}">
+								    					<input type="hidden" name="membership_name" value="{{ $membership[1]->membership_name }}">
+								    					<input type="hidden" name="membership_id" value="{{ $membership[1]->id }}">
+								    					{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+								    					{!! Form::close() !!}
+							    					@endif
+							    				</div>
+							    				</div>
+							    		</div>
+							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[2]->id)? 'disabled': '' }}">
+							    			<div class="borderimage text-center">
+							    				<div class="free">
+							    					<span>{{ $membership[2]->cost }}/-</span>
+							    					<h1>{{ $membership[2]->type }}</h1>
+							    				</div>
+							    				<div class="fee-plan">
+							    					<span>{{ $membership[2]->membership_name }}</span>
+							    				</div>
+							    				<div class="freebtn">
+							    					@if (!Auth::user())           
+							    					<a href="/signup">SIGN UP</a>
+							    					@else
+							    						{!! Form::open(['action' => 'IndexController@payment_page', 'id' => 'form_data']) !!}
+							    						<input type="hidden" name="user_name" value="{{ Auth::user()->name }}">
+							    						<input type="hidden" name="membership_cost" value="{{ $membership[2]->cost }}">
+							    						<input type="hidden" name="membership_name" value="{{ $membership[2]->membership_name }}">
+							    						<input type="hidden" name="membership_id" value="{{ $membership[2]->id }}">
+							    						{!! Form::submit( 'PURCHASE', ['class'=>'btn btn-success']) !!}
+							    						{!! Form::close() !!}
+							    					@endif
+							    				</div>
+							    			</div>
+							    		</div>		
+						    		@endif
+						    	</div>
+						    	@php
+						    }
+						@endphp						
+					@endfor
+				</div>
+			</div>
+		</div>
+	</div>
+
+
 
 
 {{-- @if(Session::has('message'))

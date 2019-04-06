@@ -1,36 +1,30 @@
 <?php
-return array(
-/** set your paypal credential **/
-'client_id' =>'AQ5NkStJB84M-r5ZMPOqt9qgAu-3yDo5oTGyDyNg16hBZejFBk2ppOKZ_pT53Frzqe1UstuH87epHSKj',
-'secret' => 'EKfZcMY81uDTSv5a8vSecNZgBsQ6FELMgZtItxe3J62oLxm-ISjMjtmT42qZIhZvXceL_rHxSazeE0Rq',
 /**
-* SDK configuration 
-*/
-'settings' => array(
-/**
-* Available option 'sandbox' or 'live'
-*/
-// 'mode' => 'sandbox',
-/**
-* Specify the max request time in seconds
-*/
-'http.ConnectionTimeOut' => 1000,
-/**
-* Whether want to log to a file
-*/
-'log.LogEnabled' => true,
-/**
-* Specify the file that want to write on
-*/
-'log.FileName' => storage_path() . '/logs/paypal.log',
-/**
-* Available option 'FINE', 'INFO', 'WARN' or 'ERROR'
-*
-* Logging is most verbose in the 'FINE' level and decreases as you
-* proceed towards ERROR
-*/
-'log.LogLevel' => 'FINE'
-),
-);
+ * PayPal Setting & API Credentials
+ * Created by Raza Mehdi <srmk@outlook.com>.
+ */
 
-?>
+return [
+    'mode'    => 'sandbox', // Can only be 'sandbox' Or 'live'. If empty or invalid, 'live' will be used.
+    'sandbox' => [
+        'username'    => env('PAYPAL_SANDBOX_API_USERNAME'),
+        'password'    => env('PAYPAL_SANDBOX_API_PASSWORD'),
+        'secret'      => env('PAYPAL_SANDBOX_API_SECRET'),
+        'certificate' => env('PAYPAL_SANDBOX_API_CERTIFICATE'),
+        'app_id'      => 'APP-80W284485P519543T', // Used for testing Adaptive Payments API in sandbox mode
+    ],
+    'live' => [
+        'username'    => env('PAYPAL_LIVE_API_USERNAME', ''),
+        'password'    => env('PAYPAL_LIVE_API_PASSWORD', ''),
+        'secret'      => env('PAYPAL_LIVE_API_SECRET', ''),
+        'certificate' => env('PAYPAL_LIVE_API_CERTIFICATE', ''),
+        'app_id'      => '', // Used for Adaptive Payments API
+    ],
+
+    'payment_action' => 'Sale', // Can only be 'Sale', 'Authorization' or 'Order'
+    'currency'       => 'USD',
+    'billing_type'   => 'MerchantInitiatedBilling',
+    'notify_url'     => '', // Change this accordingly for your application.
+    'locale'         => '', // force gateway language  i.e. it_IT, es_ES, en_US ... (for express checkout only)
+    'validate_ssl'   => true, // Validate SSL when creating api client.
+];

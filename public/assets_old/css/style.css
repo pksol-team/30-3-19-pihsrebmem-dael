@@ -619,7 +619,7 @@ textarea::placeholder {
     font-size: 11px;
 }
 
-.subscription .borderimage .freebtn a {padding: 10px 75px;background: #363f48;color: #fff;border-radius: 3px;transition: all 0.3s linear 0s;font-family: 'Open Sans',sans-serif;text-decoration: none; cursor: pointer;}
+.subscription .borderimage .freebtn a {padding: 10px 75px;background: #363f48;color: #fff;border-radius: 3px;transition: all 0.3s linear 0s;font-family: 'Open Sans',sans-serif;text-decoration: none;}
 
 .subscription .borderimage .freebtn {
     margin: 90px 0 30px 0;
@@ -938,13 +938,13 @@ div#myModal {
     display: block;
 }
 .modal-body .borderimage .fee-plan {
-    padding: 0 10px 15px 10px;
+    padding: 20px 10px 15px 10px;
     font-weight: lighter;
     color: #363f48;
     font-size: 11px;
 }
 .modal-body .borderimage .freebtn {
-    margin: 0 0 30px 0;
+    margin: 60px 0 30px 0;
 }
 .modal-footer{
     justify-content: center;
@@ -955,15 +955,6 @@ div#modal-line-2 {
 .modal-body span {
     font-size: 20px;
 }
-.hidden{
-    display: none;
-}
-
-.disabled{
-    cursor: not-allowed;
-    opacity: 0.5
-}
-/*********************** MEDIA QUERY ********************************/
 @media all and (max-width:1030px){
     .modal-body .borderimage .freebtn a {
     padding: 10px 60px;

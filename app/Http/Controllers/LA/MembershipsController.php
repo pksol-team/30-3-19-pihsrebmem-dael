@@ -193,8 +193,11 @@ class MembershipsController extends Controller
 	public function destroy($id)
 	{
 		if(Module::hasAccess("Memberships", "delete")) {
+			
 			Membership::find($id)->delete();
 			
+			// DB::table('upload_offers')->where('membership_id', $id)->delete();
+
 			// Redirecting to index() method
 			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
 		} else {

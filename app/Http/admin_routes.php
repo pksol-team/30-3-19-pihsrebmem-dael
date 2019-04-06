@@ -11,11 +11,20 @@ Route::post('/frontend/register_check', 'IndexController@register_check');
 // Homepage
 Route::get('/profile', 'IndexController@profile');
 
+/* ================== Payment Page ================== */
+Route::post('/payment_page', 'IndexController@payment_page');
 
 /* ================== Payment Integration ================== */
 Route::post('/payment_integration', 'IndexController@payment_integration');
 
-Route::get('paypal', array('as' => 'payment.status','uses' => 'IndexController@getPaymentStatus',));
+/* ================== Successfull Payment ================== */
+Route::get('/payment_succ/{id}', 'IndexController@successful_payment');
+
+/* ================== Payment Failed ================== */
+Route::get('/payment_failed', 'IndexController@unsuccessful_payment');
+
+
+
 
 
 
