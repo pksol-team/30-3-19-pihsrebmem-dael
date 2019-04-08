@@ -30,14 +30,11 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				{!! Form::model($terms_condition, ['route' => [config('laraadmin.adminRoute') . '.terms_conditions.update', $terms_condition->id ], 'method'=>'PUT', 'id' => 'terms_condition-edit-form']) !!}
-					{{-- @la_form($module) --}}
+					@la_form($module)
 					
 					{{--
-					@la_input($module, 'content')
+					@la_input($module, 'file')
 					--}}
-
-					@la_input($module, 'content', '', '', 'form-control summernote_description')
-
                     <br>
 					<div class="form-group">
 						{!! Form::submit( 'Update', ['class'=>'btn btn-success']) !!} <button class="btn btn-default pull-right"><a href="{{ url(config('laraadmin.adminRoute') . '/terms_conditions') }}">Cancel</a></button>
@@ -50,24 +47,12 @@
 
 @endsection
 
-
-
 @push('scripts')
-<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote.js"></script>
 <script>
 $(function () {
 	$("#terms_condition-edit-form").validate({
 		
 	});
-
-	$('.summernote_description').summernote();
-
 });
 </script>
-
-<style>
-	.note-editable{
-		height: 410px;
-	}
-</style>
 @endpush

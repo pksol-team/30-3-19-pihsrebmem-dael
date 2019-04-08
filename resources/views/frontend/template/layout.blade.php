@@ -98,8 +98,18 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-4">
+
+                            @php
+                                $fetch_pdf = DB::table('terms_conditions')->where('id', 1)->first();
+                                $trimmed = trim($fetch_pdf->file, '[]');
+                               
+
+                                $get_file = DB::table('uploads')->WHERE('id', trim($trimmed, '""'))->first();
+
+                                $file = '/files/'.$get_file->hash.'/'.$get_file->name.''
+                            @endphp
                             <img src="assets/images/logo2.png">
-                            <p>This is Photoshop's version  of Lorem Ipsum. Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor,</p>
+                            <p>This is Photoshop's version  of Lorem Ipsum. Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, <a href="{{ $file }}" target="_blank">Terms & Conditions</a></p>
                         </div>
                         <div class="col-lg-4 mid">
                             <h5>CONTACT</h5>

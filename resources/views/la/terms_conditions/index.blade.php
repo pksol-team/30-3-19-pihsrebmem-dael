@@ -6,11 +6,11 @@
 @section("sub_section", "Listing")
 @section("htmlheader_title", "Terms Conditions Listing")
 
-{{-- @section("headerElems")
+@section("headerElems")
 @la_access("Terms_Conditions", "create")
 	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Terms Condition</button>
 @endla_access
-@endsection --}}
+@endsection
 
 @section("main-content")
 
@@ -56,11 +56,11 @@
 			{!! Form::open(['action' => 'LA\Terms_ConditionsController@store', 'id' => 'terms_condition-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-                    {{-- @la_form($module) --}}
+                    @la_form($module)
 					
-					@la_input($module, 'content', '', '', 'form-control summernote_description')
-					{{-- @la_input($module, 'content') --}}
-					
+					{{--
+					@la_input($module, 'file')
+					--}}
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -81,12 +81,6 @@
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
-
-
-<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote.js"></script>
-
-
-
 <script>
 $(function () {
 	$("#example1").DataTable({
@@ -105,9 +99,6 @@ $(function () {
 	$("#terms_condition-add-form").validate({
 		
 	});
-
-	$('.summernote_description').summernote();
-	
 });
 </script>
 @endpush

@@ -17,8 +17,8 @@ class CreateTermsConditionsTable extends Migration
      */
     public function up()
     {
-        Module::generate("Terms_conditions", 'terms_conditions', 'content', 'fa-file-text', [
-            ["content", "Content", "Textarea", false, "", 0, 0, false],
+        Module::generate("Terms_conditions", 'terms_conditions', 'file', 'fa-file-text', [
+            ["file", "Upload ", "Files", false, "", 0, 0, true],
         ]);
 		
 		/*
