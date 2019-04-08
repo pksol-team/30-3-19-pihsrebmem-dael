@@ -42,6 +42,7 @@
 							  </div>
 							
 							<input type="hidden" name="ihc_payment_gateway" value="paypal"><input type="hidden" name="ihcaction" class="" value="register"><input type="hidden" name="lid" class="" value="1">
+							<a href="/forgot_password"><span>Forgot Password ?</span></a>
 							<div class="iump-submit-form">
 							  <div class="iump-register-row-left"><input type="submit" value="Login" name="Submit" id="ihc_submit_bttn" class="button button-primary button-large"></div>
 							  <div class="iump-register-row-right">

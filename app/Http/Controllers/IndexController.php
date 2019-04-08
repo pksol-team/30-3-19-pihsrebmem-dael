@@ -231,26 +231,6 @@ public function send_mail(Request $form){
 
 
         $memeberships = DB::table('memberships')->whereNull('deleted_at')->get();
-            
-        // Payment Done
-
-        // try{
-        //     if(env('MAIL_USERNAME') != null && env('MAIL_USERNAME') != "null" && env('MAIL_USERNAME') != "") {
-        //         $emails_ = ['nehalayub233@gmail.com', 'marianoor363@gmail.com'];
-        //         // Send mail to User his Password
-        //         Mail::send('emails.message', ['user' => 'Yourname', 'password' => 'passwordyouenter'], function ($m) {
-                    
-        //             $m->to(['nehalayub233@gmail.com', 'aminshoukat4@gmail.com'])->subject('LaraAdmin - Your Login Credentials');
-        //         });
-        //     } else {
-        //         Log::info("User created: username: ".$user->email." Password: ".$password);
-        //     }
-        //     echo "done";
-        // }catch(Exception $e){
-        //     var_dump($e);
-        // }
-
-            
 
         return view('frontend/register', compact('title', 'memeberships'));
     }
@@ -320,6 +300,76 @@ public function send_mail(Request $form){
     }
 
 
+/*************************** Forgot Password *********************************/
+
+    public function forgot_password(){
+        $title = "Forgot Password";
+        return view('frontend/forgot_password', compact('title'));
+    }
+
+/*************************** Update Password *********************************/
+
+    public function update_password(Request $request){
+        
+        // User email
+        $email = $request->email;
+
+        // Fetch user name
+        $fetch_name = DB::table('users')->where('email', $email)->first();
+        if($fetch_name){
+
+            $name = $fetch_name->name;
+
+            // Generate Random String for Password
+
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+               $charactersLength = strlen($characters);
+               $randomString = '';
+               for ($i = 0; $i < 10; $i++) {
+                   $randomString .= $characters[rand(0, $charactersLength - 1)];
+               }
+
+            // Password
+            $password = $randomString;
+            $password_db = bcrypt($password);
+
+            DB::table('users')->where('email', $email)->update(['password' => $password_db]);
+
+            // Get forgot password email content
+
+            $fetch_content = DB::table('email_templates')->where('options','Forgot Password')->first();
+
+            $upgrade_content = $fetch_content->email_content;
+            $upgrade_subject = $fetch_content->subject;
+
+
+            $name_updated = str_replace('[username]', $name, $upgrade_content);
+            $password_updated = str_replace('[password]', $password, $name_updated);
+             
+            $data = array( 'email' => [$email], 'subject' => $upgrade_subject, 'message' => $password_updated);         
+
+            Mail::send([], $data, function ($m) use($data) {                    
+                 $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+             });
+
+            \Session::flash('message','Password Updated... <br> Check your email');
+            
+            return redirect("/signin");
+        }else{
+
+            \Session::flash('message','Email did not match...');
+            
+            return redirect("/forgot_password");
+
+        }
+
+
+
+    }
+
+
+
+
     /*********************** Payment Page ********************/
 
     public function payment_page(Request $request){
@@ -336,7 +386,7 @@ public function send_mail(Request $form){
     
     /*********************** Payment Integration ********************/
 
-// public function send_mail_(Request $form){
+
     public function payment_integration(Request $request){
 
         $option = $request->payment_method_;
@@ -355,7 +405,7 @@ public function send_mail(Request $form){
                         'description' => 'Membership upgraded to '.$membership_name
                     ));           
                     
-                    return redirect('/payment_succ/'.$membership_id);
+                    return redirect('/update_membership/'.$membership_id);
                     
 
                 } catch(\Exception $e){
@@ -370,7 +420,6 @@ public function send_mail(Request $form){
             }
 
             else if($option == 'paypal'){
-                // try{
                     $provider = new ExpressCheckout;                    
 
                     $data = [];
@@ -392,50 +441,14 @@ public function send_mail(Request $form){
 
                     return redirect($response['paypal_link']);
 
-                // }catch (\Exception $e){
-                //     \Session::flash('message',$e->getMessage());
-                //     return redirect('/profile');
-                // }
+             
 
             }
+        }else{
+            return redirect('/update_membership/'.$membership_id);
         }
-            // $update_membership = ['membership_id' => $membership_id];
-            // DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
-
-            // // get upgrade membership content           
-
-
-            // $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
-
-            // $upgrade_content = $fetch_content->email_content;
-            // $upgrade_subject = $fetch_content->subject;
-
-
-            // $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
-            // $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
-            
-
-            // // Fetch admin email
-
-            // $fetch_admin_email = DB::table('users')->where('id',1)->first();
-
-            // $admin_email = $fetch_admin_email->email;
-
-            //  $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);
-            //  var_dump($data);
-
-            // Mail::send([], $data, function ($m) use($data) {                    
-            //      $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
-            //  });
-
-            // \Session::flash('message','Account Upgraded');
-            
-            // return redirect("/profile");
-
-        
 
     }
-
 
     public function successful_payment($id, Request $request){
 
@@ -473,58 +486,67 @@ public function send_mail(Request $form){
         $response = $provider->doExpressCheckoutPayment($data, $token, $payer_id);
         
         
-
-        var_dump($response);
-
-        // if($response['PAYERSTATUS'] == 'verified'){
-        //     $membership_id = $id;
-            
-        //     $update_membership = ['membership_id' => $membership_id];
-            
-        //     DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
-
-        //     $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
-
-        //     $membership_name = $fetch_name->membership_name;
-
-        //     // get upgrade membership content           
-
-
-        //     $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
-
-        //     $upgrade_content = $fetch_content->email_content;
-        //     $upgrade_subject = $fetch_content->subject;
-
-
-        //     $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
-        //     $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
-            
-
-        //     // Fetch admin email
-
-        //     $fetch_admin_email = DB::table('users')->where('id',1)->first();
-
-        //     $admin_email = $fetch_admin_email->email;
-
-        //      $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);
-        //      var_dump($data);
-
-        //     Mail::send([], $data, function ($m) use($data) {                    
-        //          $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
-        //      });
-
-        //     \Session::flash('message','Account Upgraded');
-            
-        //     return redirect("/profile");
-            
-        // }
+        if ($response['PAYMENTINFO_0_ACK'] == 'Success') {
+            return redirect('/update_membership/'.$membership_id);
+        }
     }
    
     public function unsuccessful_payment(Request $request){
-        var_dump($request);
-        // \Session::flash('message',$e->getMessage());
-        //  return redirect('/profile');
+        var_dump($request);        
     }
+
+
+    public function update_membership($id){
+        $membership_id = $id;
+
+        $update_membership = ['membership_id' => $membership_id];
+        
+        DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
+
+        $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
+
+        $membership_name = $fetch_name->membership_name;
+
+        // get upgrade membership email content
+
+        $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
+
+        $upgrade_content = $fetch_content->email_content;
+        $upgrade_subject = $fetch_content->subject;
+
+
+        $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
+        $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
+        
+
+        // Fetch admin email
+
+        $fetch_admin_email = DB::table('users')->where('id',1)->first();
+
+        $admin_email = $fetch_admin_email->email;
+
+         $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);         
+
+        Mail::send([], $data, function ($m) use($data) {                    
+             $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+         });
+
+        \Session::flash('message','Account Upgraded');
+        
+        return redirect("/profile");
+    }
+
+
+    /*********************** FAQ ********************/
+
+    public function faq(){
+        $fetch_faq = DB::table('faqs')->get();
+        $title = "FAQ";
+        return view('frontend/faq', compact('fetch_faq', 'title'));
+    }
+
+
+
 
 
 }

@@ -7,6 +7,15 @@ Route::post('/frontend/login_check', 'IndexController@login_check');
 // Registratoin
 Route::get('/signup', 'IndexController@user_registration_page');
 Route::post('/frontend/register_check', 'IndexController@register_check');
+// Forgot Password
+
+Route::get('/forgot_password', 'IndexController@forgot_password');
+Route::post('/frontend/update_password', 'IndexController@update_password');
+// FAQ
+Route::get('/faq', 'IndexController@faq');
+
+
+
 
 // Homepage
 Route::get('/profile', 'IndexController@profile');
@@ -22,6 +31,9 @@ Route::get('/payment_succ/{id}', 'IndexController@successful_payment');
 
 /* ================== Payment Failed ================== */
 Route::get('/payment_failed', 'IndexController@unsuccessful_payment');
+
+/* ================== Update Membership ================== */
+Route::get('/update_membership/{id}', 'IndexController@update_membership');
 
 
 
@@ -157,4 +169,17 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Upload_Offers ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/upload_offers', 'LA\Upload_OffersController');
 	Route::get(config('laraadmin.adminRoute') . '/upload_offer_dt_ajax', 'LA\Upload_OffersController@dtajax');
+
+	
+
+	/* ================== Terms_Conditions ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/terms_conditions', 'LA\Terms_ConditionsController');
+	Route::get(config('laraadmin.adminRoute') . '/terms_condition_dt_ajax', 'LA\Terms_ConditionsController@dtajax');
+
+	/* ================== Faqs ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/faqs', 'LA\FaqsController');
+	Route::get(config('laraadmin.adminRoute') . '/faq_dt_ajax', 'LA\FaqsController@dtajax');
 });
+
+
+

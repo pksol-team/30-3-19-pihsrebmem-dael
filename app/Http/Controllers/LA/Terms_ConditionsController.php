@@ -17,37 +17,37 @@ use Collective\Html\FormFacade as Form;
 use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 
-use App\Models\Membership;
+use App\Models\Terms_Condition;
 
-class MembershipsController extends Controller
+class Terms_ConditionsController extends Controller
 {
 	public $show_action = true;
-	public $view_col = 'membership_name';
-	public $listing_cols = ['id', 'membership_name', 'type', 'cost', 'membership_level'];
+	public $view_col = 'content';
+	public $listing_cols = ['id', 'content'];
 	
 	public function __construct() {
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {
-				$this->listing_cols = ModuleFields::listingColumnAccessScan('Memberships', $this->listing_cols);
+				$this->listing_cols = ModuleFields::listingColumnAccessScan('Terms_Conditions', $this->listing_cols);
 				return $next($request);
 			});
 		} else {
-			$this->listing_cols = ModuleFields::listingColumnAccessScan('Memberships', $this->listing_cols);
+			$this->listing_cols = ModuleFields::listingColumnAccessScan('Terms_Conditions', $this->listing_cols);
 		}
 	}
 	
 	/**
-	 * Display a listing of the Memberships.
+	 * Display a listing of the Terms_Conditions.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index()
 	{
-		$module = Module::get('Memberships');
+		$module = Module::get('Terms_Conditions');
 		
 		if(Module::hasAccess($module->id)) {
-			return View('la.memberships.index', [
+			return View('la.terms_conditions.index', [
 				'show_actions' => $this->show_action,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
@@ -58,7 +58,7 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Show the form for creating a new membership.
+	 * Show the form for creating a new terms_condition.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
@@ -68,16 +68,16 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Store a newly created membership in database.
+	 * Store a newly created terms_condition in database.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request)
 	{
-		if(Module::hasAccess("Memberships", "create")) {
+		if(Module::hasAccess("Terms_Conditions", "create")) {
 		
-			$rules = Module::validateRules("Memberships", $request);
+			$rules = Module::validateRules("Terms_Conditions", $request);
 			
 			$validator = Validator::make($request->all(), $rules);
 			
@@ -85,9 +85,9 @@ class MembershipsController extends Controller
 				return redirect()->back()->withErrors($validator)->withInput();
 			}
 			
-			$insert_id = Module::insert("Memberships", $request);
+			$insert_id = Module::insert("Terms_Conditions", $request);
 			
-			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.terms_conditions.index');
 			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
@@ -95,30 +95,30 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Display the specified membership.
+	 * Display the specified terms_condition.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show($id)
 	{
-		if(Module::hasAccess("Memberships", "view")) {
+		if(Module::hasAccess("Terms_Conditions", "view")) {
 			
-			$membership = Membership::find($id);
-			if(isset($membership->id)) {
-				$module = Module::get('Memberships');
-				$module->row = $membership;
+			$terms_condition = Terms_Condition::find($id);
+			if(isset($terms_condition->id)) {
+				$module = Module::get('Terms_Conditions');
+				$module->row = $terms_condition;
 				
-				return view('la.memberships.show', [
+				return view('la.terms_conditions.show', [
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
 					'no_padding' => "no-padding"
-				])->with('membership', $membership);
+				])->with('terms_condition', $terms_condition);
 			} else {
 				return view('errors.404', [
 					'record_id' => $id,
-					'record_name' => ucfirst("membership"),
+					'record_name' => ucfirst("terms_condition"),
 				]);
 			}
 		} else {
@@ -127,28 +127,28 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Show the form for editing the specified membership.
+	 * Show the form for editing the specified terms_condition.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit($id)
 	{
-		if(Module::hasAccess("Memberships", "edit")) {			
-			$membership = Membership::find($id);
-			if(isset($membership->id)) {	
-				$module = Module::get('Memberships');
+		if(Module::hasAccess("Terms_Conditions", "edit")) {			
+			$terms_condition = Terms_Condition::find($id);
+			if(isset($terms_condition->id)) {	
+				$module = Module::get('Terms_Conditions');
 				
-				$module->row = $membership;
+				$module->row = $terms_condition;
 				
-				return view('la.memberships.edit', [
+				return view('la.terms_conditions.edit', [
 					'module' => $module,
 					'view_col' => $this->view_col,
-				])->with('membership', $membership);
+				])->with('terms_condition', $terms_condition);
 			} else {
 				return view('errors.404', [
 					'record_id' => $id,
-					'record_name' => ucfirst("membership"),
+					'record_name' => ucfirst("terms_condition"),
 				]);
 			}
 		} else {
@@ -157,7 +157,7 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Update the specified membership in storage.
+	 * Update the specified terms_condition in storage.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
 	 * @param  int  $id
@@ -165,9 +165,9 @@ class MembershipsController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		if(Module::hasAccess("Memberships", "edit")) {
+		if(Module::hasAccess("Terms_Conditions", "edit")) {
 			
-			$rules = Module::validateRules("Memberships", $request, true);
+			$rules = Module::validateRules("Terms_Conditions", $request, true);
 			
 			$validator = Validator::make($request->all(), $rules);
 			
@@ -175,9 +175,9 @@ class MembershipsController extends Controller
 				return redirect()->back()->withErrors($validator)->withInput();;
 			}
 			
-			$insert_id = Module::updateRow("Memberships", $request, $id);
+			$insert_id = Module::updateRow("Terms_Conditions", $request, $id);
 			
-			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.terms_conditions.index');
 			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
@@ -185,21 +185,18 @@ class MembershipsController extends Controller
 	}
 
 	/**
-	 * Remove the specified membership from storage.
+	 * Remove the specified terms_condition from storage.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy($id)
 	{
-		if(Module::hasAccess("Memberships", "delete")) {
+		if(Module::hasAccess("Terms_Conditions", "delete")) {
+			Terms_Condition::find($id)->delete();
 			
-			Membership::find($id)->delete();
-			
-			// DB::table('upload_offers')->where('membership_id', $id)->delete();
-
 			// Redirecting to index() method
-			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.terms_conditions.index');
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -212,11 +209,11 @@ class MembershipsController extends Controller
 	 */
 	public function dtajax()
 	{
-		$values = DB::table('memberships')->select($this->listing_cols)->whereNull('deleted_at');
+		$values = DB::table('terms_conditions')->select($this->listing_cols)->whereNull('deleted_at');
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 
-		$fields_popup = ModuleFields::getModuleFields('Memberships');
+		$fields_popup = ModuleFields::getModuleFields('Terms_Conditions');
 		
 		for($i=0; $i < count($data->data); $i++) {
 			for ($j=0; $j < count($this->listing_cols); $j++) { 
@@ -225,7 +222,7 @@ class MembershipsController extends Controller
 					$data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
 				}
 				if($col == $this->view_col) {
-					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/memberships/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
+					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/terms_conditions/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
 				}
 				// else if($col == "author") {
 				//    $data->data[$i][$j];
@@ -234,12 +231,12 @@ class MembershipsController extends Controller
 			
 			if($this->show_action) {
 				$output = '';
-				if(Module::hasAccess("Memberships", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/memberships/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+				if(Module::hasAccess("Terms_Conditions", "edit")) {
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/terms_conditions/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
 				}
 				
-				// if(Module::hasAccess("Memberships", "delete")) {
-				// 	$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.memberships.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
+				// if(Module::hasAccess("Terms_Conditions", "delete")) {
+				// 	$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.terms_conditions.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
 				// 	$output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
 				// 	$output .= Form::close();
 				// }

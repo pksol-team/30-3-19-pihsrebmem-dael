@@ -5,6 +5,7 @@
 
 <head>
     
+    <meta name="keywords" content="HTML">
     <meta charset="utf-8">
     <link rel="icon" href="/frontend/images/5121.png">
    
@@ -62,11 +63,14 @@
                                 </div>
                                 <ul>
                                     <li><a href="/">Home</a></li>
+                                    <li><a href="/faq">FAQ</a></li>
+                                    
                                     @if (!Auth::user())
                                         <li><a href="/signin">Login</a></li>
                                         <li><a href="/signup"><button>BECOME A MEMBER</button></a></li>
                                     @else
                                     <li><a href="{{ url('/profile') }}">Profile</a></li>
+
                                     <li><a href="{{ url('/logout') }}">Logout</a></li>
                                     @endif
                                 </ul>
