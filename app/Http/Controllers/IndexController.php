@@ -548,6 +548,15 @@ public function send_mail(Request $form){
 
 
 
+    /*********************** Subscription ********************/
+
+    public function subscription(){
+        $title = "Subscription";
+        return view('frontend/subscription', compact('title'));
+    }
+
+
+
 
 }
 

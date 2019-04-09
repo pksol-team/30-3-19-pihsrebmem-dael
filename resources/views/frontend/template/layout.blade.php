@@ -67,7 +67,7 @@
                                     
                                     @if (!Auth::user())
                                         <li><a href="/signin">Login</a></li>
-                                        <li><a href="/signup"><button>BECOME A MEMBER</button></a></li>
+                                        <li><a href="/subscription"><button>BECOME A MEMBER</button></a></li>
                                     @else
                                     <li><a href="{{ url('/profile') }}">Profile</a></li>
 

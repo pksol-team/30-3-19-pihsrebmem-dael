@@ -15,6 +15,8 @@ Route::post('/frontend/update_password', 'IndexController@update_password');
 Route::get('/faq', 'IndexController@faq');
 
 
+// Subscription
+Route::get('/subscription', 'IndexController@subscription');
 
 
 // Homepage
