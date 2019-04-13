@@ -14,6 +14,7 @@
 				<div class="row">
 					<div class="col-lg-3"></div>
 					<div class="col-md-6">		
+					{{-- {!! Form::open(['action' => '/payment_integration', 'id' => 'form_data']) !!} --}}
 					{!! Form::open(['action' => 'IndexController@payment_integration', 'id' => 'form_data']) !!}
 							  <div class="iump-form-line-register iump-form-text" id="ihc_reg_text_416"><label class="iump-labels-register"><span style="color: red;">*</span>Membership</label>
 						 		<input type="text" name="membership_name" class="form-control element-block" value="{{ $form_data[1] }}">							  	
@@ -22,6 +23,12 @@
 						 		<input type="text" name="membership_cost" class="form-control element-block" value="{{ $form_data[2] }}">							  	
 							  </div>
 						 		<input type="hidden" name="membership_id" class="form-control element-block" value="{{ $form_data[3] }}">							  							 		
+						 		<input type="hidden" name="membership_type" class="form-control element-block" value="{{ $form_data[4] }}">							  							 		
+						 		<input type="hidden" name="subscription_period" class="form-control element-block" value="{{ $form_data[5] }}">							  							 		
+
+						 		@if ($form_data[4] != 'Free' && $form_data[5] != 'Lifetime')
+						 			<input type="hidden" name="planId" class="form-control element-block" value="{{ $form_data[6] }}">							  							 								 			
+						 		@endif
 
 							  {{-- Payment Option --}}
 		
@@ -76,8 +83,8 @@
 							      </div>
 							  </div>
 							
-							{!! Form::submit( 'Proceed to checkout', ['class'=>'btn btn-success payment_stripe']) !!}
-							{!! Form::close() !!}
+					{!! Form::submit( 'Proceed to checkout', ['class'=>'btn btn-success payment_stripe']) !!}
+					{!! Form::close() !!}
 							
 					</div>
 				</div>

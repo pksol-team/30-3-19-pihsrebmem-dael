@@ -1,18 +1,18 @@
 @extends('la.layouts.app')
 
 @section('htmlheader_title')
-	Membership View
+	Leads Upload Area View
 @endsection
 
 
 @section('main-content')
 <div id="page-content" class="profile2">
-	
+
 
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
-		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/memberships') }}" data-toggle="tooltip" data-placement="right" title="Back to Memberships"><i class="fa fa-chevron-left"></i></a></li>
+		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/leads_upload_areas') }}" data-toggle="tooltip" data-placement="right" title="Back to Leads Upload Areas"><i class="fa fa-chevron-left"></i></a></li>
 		<li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-		
+	
 	</ul>
 
 	<div class="tab-content">
@@ -23,11 +23,9 @@
 						<h4>General Info</h4>
 					</div>
 					<div class="panel-body">
-						@la_display($module, 'membership_name')
-						@la_display($module, 'type')
-						@la_display($module, 'cost')
-						@la_display($module, 'membership_level')
-						@la_display($module, 'subscription_period')
+						@la_display($module, 'membership_id')
+						@la_display($module, 'file_name')
+						@la_display($module, 'file')
 					</div>
 				</div>
 			</div>

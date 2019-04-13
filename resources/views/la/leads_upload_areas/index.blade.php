@@ -1,14 +1,14 @@
 @extends("la.layouts.app")
 
-@section("contentheader_title", "Upload Offers")
-@section("contentheader_description", "Upload Offers listing")
-@section("section", "Upload Offers")
+@section("contentheader_title", "Leads Upload Areas")
+@section("contentheader_description", "Leads Upload Areas listing")
+@section("section", "Leads Upload Areas")
 @section("sub_section", "Listing")
-@section("htmlheader_title", "Upload Offers Listing")
+@section("htmlheader_title", "Leads Upload Areas Listing")
 
 @section("headerElems")
-@la_access("Upload_Offers", "create")
-	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Upload Offer</button>
+@la_access("Leads_Upload_Areas", "create")
+	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Upload</button>
 @endla_access
 @endsection
 
@@ -45,21 +45,22 @@
 	</div>
 </div>
 
-@la_access("Upload_Offers", "create")
+@la_access("Leads_Upload_Areas", "create")
 <div class="modal fade" id="AddModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Add Upload Offer</h4>
+				<h4 class="modal-title" id="myModalLabel">Add Leads Upload Area</h4>
 			</div>
-			{!! Form::open(['action' => 'LA\Upload_OffersController@store', 'id' => 'upload_offer-add-form']) !!}
+			{!! Form::open(['action' => 'LA\Leads_Upload_AreasController@store', 'id' => 'leads_upload_area-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
                     @la_form($module)
 					
 					{{--
 					@la_input($module, 'membership_id')
+					@la_input($module, 'file_name')
 					@la_input($module, 'file')
 					--}}
 				</div>
@@ -87,7 +88,7 @@ $(function () {
 	$("#example1").DataTable({
 		processing: true,
         serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/upload_offer_dt_ajax') }}",
+        ajax: "{{ url(config('laraadmin.adminRoute') . '/leads_upload_area_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
@@ -97,7 +98,7 @@ $(function () {
 		columnDefs: [ { orderable: false, targets: [-1] }],
 		@endif
 	});
-	$("#upload_offer-add-form").validate({
+	$("#leads_upload_area-add-form").validate({
 		
 	});
 });

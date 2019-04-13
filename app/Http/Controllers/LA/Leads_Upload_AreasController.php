@@ -17,37 +17,37 @@ use Collective\Html\FormFacade as Form;
 use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 
-use App\Models\Upload_Offer;
+use App\Models\Leads_Upload_Area;
 
-class Upload_OffersController extends Controller
+class Leads_Upload_AreasController extends Controller
 {
 	public $show_action = true;
 	public $view_col = 'membership_id';
-	public $listing_cols = ['id', 'membership_id', 'file'];
+	public $listing_cols = ['id', 'membership_id', 'file_name', 'file'];
 	
 	public function __construct() {
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {
-				$this->listing_cols = ModuleFields::listingColumnAccessScan('Upload_Offers', $this->listing_cols);
+				$this->listing_cols = ModuleFields::listingColumnAccessScan('Leads_Upload_Areas', $this->listing_cols);
 				return $next($request);
 			});
 		} else {
-			$this->listing_cols = ModuleFields::listingColumnAccessScan('Upload_Offers', $this->listing_cols);
+			$this->listing_cols = ModuleFields::listingColumnAccessScan('Leads_Upload_Areas', $this->listing_cols);
 		}
 	}
 	
 	/**
-	 * Display a listing of the Upload_Offers.
+	 * Display a listing of the Leads_Upload_Areas.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index()
 	{
-		$module = Module::get('Upload_Offers');
+		$module = Module::get('Leads_Upload_Areas');
 		
 		if(Module::hasAccess($module->id)) {
-			return View('la.upload_offers.index', [
+			return View('la.leads_upload_areas.index', [
 				'show_actions' => $this->show_action,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
@@ -58,7 +58,7 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Show the form for creating a new upload_offer.
+	 * Show the form for creating a new leads_upload_area.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
@@ -68,16 +68,16 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Store a newly created upload_offer in database.
+	 * Store a newly created leads_upload_area in database.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request)
 	{
-		if(Module::hasAccess("Upload_Offers", "create")) {
+		if(Module::hasAccess("Leads_Upload_Areas", "create")) {
 		
-			$rules = Module::validateRules("Upload_Offers", $request);
+			$rules = Module::validateRules("Leads_Upload_Areas", $request);
 			
 			$validator = Validator::make($request->all(), $rules);
 			
@@ -85,9 +85,9 @@ class Upload_OffersController extends Controller
 				return redirect()->back()->withErrors($validator)->withInput();
 			}
 			
-			$insert_id = Module::insert("Upload_Offers", $request);
+			$insert_id = Module::insert("Leads_Upload_Areas", $request);
 			
-			return redirect()->route(config('laraadmin.adminRoute') . '.upload_offers.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.leads_upload_areas.index');
 			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
@@ -95,30 +95,30 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Display the specified upload_offer.
+	 * Display the specified leads_upload_area.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show($id)
 	{
-		if(Module::hasAccess("Upload_Offers", "view")) {
+		if(Module::hasAccess("Leads_Upload_Areas", "view")) {
 			
-			$upload_offer = Upload_Offer::find($id);
-			if(isset($upload_offer->id)) {
-				$module = Module::get('Upload_Offers');
-				$module->row = $upload_offer;
+			$leads_upload_area = Leads_Upload_Area::find($id);
+			if(isset($leads_upload_area->id)) {
+				$module = Module::get('Leads_Upload_Areas');
+				$module->row = $leads_upload_area;
 				
-				return view('la.upload_offers.show', [
+				return view('la.leads_upload_areas.show', [
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
 					'no_padding' => "no-padding"
-				])->with('upload_offer', $upload_offer);
+				])->with('leads_upload_area', $leads_upload_area);
 			} else {
 				return view('errors.404', [
 					'record_id' => $id,
-					'record_name' => ucfirst("upload_offer"),
+					'record_name' => ucfirst("leads_upload_area"),
 				]);
 			}
 		} else {
@@ -127,28 +127,28 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Show the form for editing the specified upload_offer.
+	 * Show the form for editing the specified leads_upload_area.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit($id)
 	{
-		if(Module::hasAccess("Upload_Offers", "edit")) {			
-			$upload_offer = Upload_Offer::find($id);
-			if(isset($upload_offer->id)) {	
-				$module = Module::get('Upload_Offers');
+		if(Module::hasAccess("Leads_Upload_Areas", "edit")) {			
+			$leads_upload_area = Leads_Upload_Area::find($id);
+			if(isset($leads_upload_area->id)) {	
+				$module = Module::get('Leads_Upload_Areas');
 				
-				$module->row = $upload_offer;
+				$module->row = $leads_upload_area;
 				
-				return view('la.upload_offers.edit', [
+				return view('la.leads_upload_areas.edit', [
 					'module' => $module,
 					'view_col' => $this->view_col,
-				])->with('upload_offer', $upload_offer);
+				])->with('leads_upload_area', $leads_upload_area);
 			} else {
 				return view('errors.404', [
 					'record_id' => $id,
-					'record_name' => ucfirst("upload_offer"),
+					'record_name' => ucfirst("leads_upload_area"),
 				]);
 			}
 		} else {
@@ -157,7 +157,7 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Update the specified upload_offer in storage.
+	 * Update the specified leads_upload_area in storage.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
 	 * @param  int  $id
@@ -165,9 +165,9 @@ class Upload_OffersController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		if(Module::hasAccess("Upload_Offers", "edit")) {
+		if(Module::hasAccess("Leads_Upload_Areas", "edit")) {
 			
-			$rules = Module::validateRules("Upload_Offers", $request, true);
+			$rules = Module::validateRules("Leads_Upload_Areas", $request, true);
 			
 			$validator = Validator::make($request->all(), $rules);
 			
@@ -175,9 +175,9 @@ class Upload_OffersController extends Controller
 				return redirect()->back()->withErrors($validator)->withInput();;
 			}
 			
-			$insert_id = Module::updateRow("Upload_Offers", $request, $id);
+			$insert_id = Module::updateRow("Leads_Upload_Areas", $request, $id);
 			
-			return redirect()->route(config('laraadmin.adminRoute') . '.upload_offers.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.leads_upload_areas.index');
 			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
@@ -185,18 +185,18 @@ class Upload_OffersController extends Controller
 	}
 
 	/**
-	 * Remove the specified upload_offer from storage.
+	 * Remove the specified leads_upload_area from storage.
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy($id)
 	{
-		if(Module::hasAccess("Upload_Offers", "delete")) {
-			Upload_Offer::find($id)->delete();
+		if(Module::hasAccess("Leads_Upload_Areas", "delete")) {
+			Leads_Upload_Area::find($id)->delete();
 			
 			// Redirecting to index() method
-			return redirect()->route(config('laraadmin.adminRoute') . '.upload_offers.index');
+			return redirect()->route(config('laraadmin.adminRoute') . '.leads_upload_areas.index');
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -209,11 +209,11 @@ class Upload_OffersController extends Controller
 	 */
 	public function dtajax()
 	{
-		$values = DB::table('upload_offers')->select($this->listing_cols)->whereNull('deleted_at');
+		$values = DB::table('leads_upload_areas')->select($this->listing_cols)->whereNull('deleted_at');
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 
-		$fields_popup = ModuleFields::getModuleFields('Upload_Offers');
+		$fields_popup = ModuleFields::getModuleFields('Leads_Upload_Areas');
 		
 		for($i=0; $i < count($data->data); $i++) {
 			for ($j=0; $j < count($this->listing_cols); $j++) { 
@@ -222,7 +222,7 @@ class Upload_OffersController extends Controller
 					$data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
 				}
 				if($col == $this->view_col) {
-					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/upload_offers/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
+					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/leads_upload_areas/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
 				}
 				// else if($col == "author") {
 				//    $data->data[$i][$j];
@@ -231,12 +231,12 @@ class Upload_OffersController extends Controller
 			
 			if($this->show_action) {
 				$output = '';
-				if(Module::hasAccess("Upload_Offers", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/upload_offers/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+				if(Module::hasAccess("Leads_Upload_Areas", "edit")) {
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/leads_upload_areas/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
 				}
 				
-				if(Module::hasAccess("Upload_Offers", "delete")) {
-					$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.upload_offers.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
+				if(Module::hasAccess("Leads_Upload_Areas", "delete")) {
+					$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.leads_upload_areas.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
 					$output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
 					$output .= Form::close();
 				}

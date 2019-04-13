@@ -9,13 +9,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Upload_Offer extends Model
+class Leads_Upload_Area extends Model
 {
     use SoftDeletes;
 	
-	protected $table = 'upload_offers';
+	protected $table = 'leads_upload_areas';
 
-	 protected $fillable = ['membership_id', 'file'];
+	protected $fillable = ['membership_id', 'file', 'file_name'];
+
 	
 	protected $hidden = [
         

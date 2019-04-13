@@ -8,7 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Dwij\Laraadmin\Models\Module;
 
-class CreateMembershipsTable extends Migration
+class CreateLeadsUploadAreasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,12 +17,10 @@ class CreateMembershipsTable extends Migration
      */
     public function up()
     {
-        Module::generate("Memberships", 'memberships', 'membership_name', 'fa-certificate', [
-            ["membership_name", "Membership Name", "String", false, "", 0, 256, true],
-            ["type", "Type", "Dropdown", false, "", 0, 0, false, ["Free","Paid"]],
-            ["cost", "Cost", "TextField", false, "0", 0, 256, false],
-            ["membership_level", "Level", "Dropdown", false, "", 0, 0, false, ["1","2","3"]],
-            ["subscription_period", "Subscription", "Dropdown", false, "", 0, 0, false, ["1 Month","6 Month","1 Year","Lifetime"]],
+        Module::generate("Leads_upload_areas", 'leads_upload_areas', 'membership_id', 'fa-upload', [
+            ["membership_id", "Membership", "Dropdown", false, "", 0, 0, false, "@memberships"],
+            ["file_name", "Title", "TextField", false, "", 0, 256, true],
+            ["file", "Upload File", "File", false, "", 0, 0, true],
         ]);
 		
 		/*
@@ -68,8 +66,8 @@ class CreateMembershipsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('memberships')) {
-            Schema::drop('memberships');
+        if (Schema::hasTable('leads_upload_areas')) {
+            Schema::drop('leads_upload_areas');
         }
     }
 }

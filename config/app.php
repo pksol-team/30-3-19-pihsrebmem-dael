@@ -155,7 +155,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        Srmklive\PayPal\Providers\PayPalServiceProvider::class,
+        // Srmklive\PayPal\Providers\PayPalServiceProvider::class,
         Dwij\Laraadmin\LAProvider::class,
 
     ],

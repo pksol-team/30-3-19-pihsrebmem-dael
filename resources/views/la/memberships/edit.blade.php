@@ -37,6 +37,7 @@
 					@la_input($module, 'type')
 					@la_input($module, 'cost')
 					@la_input($module, 'membership_level')
+					@la_input($module, 'subscription_period')
 					--}}
                     <br>
 					<div class="form-group">

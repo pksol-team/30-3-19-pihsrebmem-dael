@@ -8,7 +8,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
-use App\Models\Upload_Offer;
+use App\Models\Leads_Upload_Area;
+// use App\Models\Upload_Offer;
 
 
 
@@ -27,11 +28,28 @@ use Session;
 use Carbon\Carbon;
 use Auth;
 
+
+// for stripe
 use Stripe\Charge;
 use Stripe\Stripe;
 
 /** All Paypal Details class **/
-use Srmklive\PayPal\Services\ExpressCheckout;
+// use Srmklive\PayPal\Services\ExpressCheckout;
+
+
+// paypal subscription
+use PayPal\Api\Agreement;
+use PayPal\Api\Payer;
+use PayPal\Api\Plan;
+
+// Update Subscription Plan
+use PayPal\Api\Patch;
+use PayPal\Api\PatchRequest;
+use PayPal\Common\PayPalModel;
+
+
+
+
 
 /**
  * Class HomeController
@@ -39,6 +57,9 @@ use Srmklive\PayPal\Services\ExpressCheckout;
  */
 class IndexController extends Controller
 {
+    // varibale to get paypal credentials
+    public $apiContext;   
+
     /**
      * Create a new controller instance.
      *
@@ -47,7 +68,16 @@ class IndexController extends Controller
     public function __construct()
     {
         // parent::__construct();
-    }
+
+
+        $this->apiContext = new \PayPal\Rest\ApiContext(
+                new \PayPal\Auth\OAuthTokenCredential(
+                    env('PAYPAL_CLIENT_ID'),// ClientID
+                    env('PAYPAL_SECRET')// ClientSecret
+                )
+        );
+
+    }   
 
     /**
      * Show the application dashboard.
@@ -76,7 +106,7 @@ class IndexController extends Controller
         if(Auth::user()){
             $title = 'Profile';
 
-            $offers = Upload_Offer::with('memberships')->whereNull('deleted_at')->get();
+            $offers = Leads_Upload_Area::with('memberships')->whereNull('deleted_at')->get();
 
             $files = json_decode($offers);
 
@@ -226,21 +256,50 @@ public function send_mail(Request $form){
     }
 
 /*********************** Resgistration ********************/
+    public function user_subscription_page($id){
+
+        $title = 'Subscription';
+        
+        $membership_id = $id;
+
+        $fetch_membership_name = DB::table('memberships')->WHERE('id', $membership_id)->first();
+        if($fetch_membership_name){
+
+            $membership_name = $fetch_membership_name->membership_name;
+            $membership_cost = $fetch_membership_name->cost;
+            $error = '';
+            return view('frontend/register', compact('title', 'membership_name', 'membership_id', 'error', 'membership_cost'));            
+        }else{
+            \Session::flash('message','No Data exist');
+            $error = 'No data exist';
+            return view('frontend/register', compact('title', 'error')); 
+        }
+        
+    }
+
+
     public function user_registration_page(){
+
         $title = 'Registration';
+        
+        $memeberships = DB::table('memberships')->get();
 
-
-        $memeberships = DB::table('memberships')->whereNull('deleted_at')->get();
-
-        return view('frontend/register', compact('title', 'memeberships'));
+        return view('frontend/register', compact('title', 'memeberships', 'membership_id'));
+        
     }
 
     // Regiser User
     public function register_check(Request $request)
     {
-        $name = $request->input('name');
+        $data = $request;
+        $name = $request->input('user_name');
         $email = $request->input('email');
         $membership_id = $request->input('membership_id');
+        $page = $request->input('payment_page');
+        
+        
+
+
         $authenticateResult = $this->register_authenticate($email);
         if ($authenticateResult === true) { 
             $user = [
@@ -250,38 +309,48 @@ public function send_mail(Request $form){
                 'context_id' => 0,
                 'type' => "user",
                 'created_at' => Carbon::now(),
-                'membership_id' => $membership_id
+                'membership_id' => 0
             ];
 
-            $insertedUsers = DB::table('users')->insert($user);
+            $insertedUsersid = DB::table('users')->insertGetId($user);
 
-            // Get email content from database
-            $get_email_content = DB::table('email_templates')->Where('options', 'Registeration')->whereNull('deleted_at')->first();
-            $content = $get_email_content->email_content;
-            $subject = $get_email_content->subject;
+            $page = $page.":".$insertedUsersid;
 
-            // Get membership name
-            $get_membership_name = DB::table('memberships')->Where('id', $membership_id)->whereNull('deleted_at')->first();
-            $membership_name = $get_membership_name->membership_name;
+
+            echo IndexController::payment_integration($data, $page);            
+            
+
+            // // Get email content from database
+            // $get_email_content = DB::table('email_templates')->Where('options', 'Registeration')->whereNull('deleted_at')->first();
+            // $content = $get_email_content->email_content;
+            // $subject = $get_email_content->subject;
+
+            // // Get membership name
+            // $get_membership_name = DB::table('memberships')->Where('id', $membership_id)->whereNull('deleted_at')->first();
+            // $membership_name = $get_membership_name->membership_name;
         
 
 
-            $name_updated = str_replace('[username]', $name, $content);
-            $registration_content = str_replace('[membership]', $membership_name, $name_updated);
+            // $name_updated = str_replace('[username]', $name, $content);
+            // $registration_content = str_replace('[membership]', $membership_name, $name_updated);
 
 
 
 
-            $data = array( 'email' => $email, 'subject' => $subject, 'message' => $registration_content);
+            // $data = array( 'email' => $email, 'subject' => $subject, 'message' => $registration_content);
 
-            // Send email
+            // // Send email
 
-            Mail::send([], $data, function ($m) use($data) {                    
-                $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
-            });
-            return redirect('/signin')->with('message', 'Registerd Successfully Kindly Login');
+            // Mail::send([], $data, function ($m) use($data) {                    
+            //     $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+            // });
+
+            // return redirect('/signin')->with('message', 'Registerd Successfully Kindly Login');
         }
         else {
+            // echo "failed";
+            // \Session::flash('message', $authenticateResult);
+            // return redirect()->back()->with('error', 'error');
             return redirect()->back()->withInput()->with('message', $authenticateResult);
         }
 
@@ -377,24 +446,40 @@ public function send_mail(Request $form){
         $membership_name = $request->membership_name;
         $membership_cost = $request->membership_cost;
         $membership_id = $request->membership_id;
+        $membership_type = $request->membership_type;
+        $subscription_period = $request->subscription_period;
+        if ($membership_type != 'Free' && $subscription_period != 'Lifetime') {
 
-        $form_data = [$name, $membership_name, $membership_cost,$membership_id];
+            $planId = $request->planId;
+            
+            $form_data = [$name, $membership_name, $membership_cost,$membership_id, $membership_type, $subscription_period , $planId];            
+        }else{
+
+            $form_data = [$name, $membership_name, $membership_cost,$membership_id, $membership_type, $subscription_period ];            
+        }
 
         $title = 'Proceed to checkout';
+        
         return view('frontend/payment_page', compact('form_data', 'title'));
     }
     
     /*********************** Payment Integration ********************/
 
 
-    public function payment_integration(Request $request){
-
+    public function payment_integration(Request $request, $page = false){
+       
         $option = $request->payment_method_;
         $membership_cost = $request->membership_cost;
         $membership_name = $request->membership_name;
         $membership_id = $request->membership_id;
-        $user_name = $request->user_name;
-        if($membership_cost > 0){
+        $user_name = $request->user_name;        
+        $membership_type = $request->membership_type;        
+        $subscription_period = $request->subscription_period;        
+        
+        // if cost greater then 0 or not free
+        if($membership_cost > 0 && $membership_type != 'Free') {
+
+            // check if payment option is stripe
             if($option == 'stripe'){
                 Stripe::setApiKey('sk_test_doaAddzso5GZH5xoQ4YwDbQO');
                 try{
@@ -405,13 +490,14 @@ public function send_mail(Request $form){
                         'description' => 'Membership upgraded to '.$membership_name
                     ));           
                     
-                    return redirect('/update_membership/'.$membership_id);
+                    return redirect('/update_membership/'.$membership_id.'/'.$page);
                     
 
                 } catch(\Exception $e){
 
                 \Session::flash('message',$e->getMessage());
-                 return redirect('/profile');
+                echo $e->getMessage();
+                 // return redirect('/profile');
                 }
                 
                 // \Session::flash('message','Account Upgraded');
@@ -419,121 +505,328 @@ public function send_mail(Request $form){
                 // return redirect("/profile");
             }
 
-            else if($option == 'paypal'){
-                    $provider = new ExpressCheckout;                    
+            // check if payment option is paypal
+            else{
+                // if payment is not lifetime
+                if($subscription_period != 'Lifetime'){
 
-                    $data = [];
-                    $data['items'] = [
-                        [
-                            'name' => $membership_name,
-                            'price' => $membership_cost,
-                            'qty' => 1
-                        ]
-                    ];
+                    // setting the agreement start time after two minutes
+                    $st = date("Y-m-d\TH:i:s\Z",strtotime('+2 minute'));
 
-                    $data['invoice_id'] = uniqid();
-                    $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
-                    $data['return_url'] = url('/payment_succ/'.$membership_id);
-                    $data['cancel_url'] = url('/payment_failed');
-                    $data['total'] = $membership_cost;
+                    // plan id
+                    $planId = $request->planId;
+                    
+                    // create agreement between marchant and buyer
+                    $agreement = new Agreement();
 
-                    $response = $provider->setExpressCheckout($data, true);
+                    $agreement->setName('Agreement For subscribing '.$membership_name)
+                        ->setDescription('Agreement is placed at cost '.$membership_cost.'/- for every '.$subscription_period)                                      
+                        ->setStartDate($st);
 
-                    return redirect($response['paypal_link']);
+                    // getting plan for which agreement is created
+
+                    $plan = new Plan();
+                    
+                    $plan->setId($planId);
+
+                    $agreement->setPlan($plan);
+
+                    // setting up payer
+
+                    $payer = new Payer();
+                    
+                    $payer->setPaymentMethod('paypal');
+                    
+                    $agreement->setPayer($payer);                    
+                    
+                    try{
+
+
+                        $agreement = $agreement->create($this->apiContext);
+                        
+                        $approvalUrl = $agreement->getApprovalLink();
+
+                        Session::set('membershipID', $membership_id);
+                        Session::set('page', $page);
+
+                        return redirect($approvalUrl);
+
+                    }catch( Exception $e){
+                        echo $e->getData();
+                    }
+                }
+                // if payment is lifetime
+                else{
+                    echo "one time payment";
+                }
+            }
+
+            // else if($option == 'paypal'){
+            //         $provider = new ExpressCheckout;                    
+
+            //         $data = [];
+            //         $data['items'] = [
+            //             [
+            //                 'name' => $membership_name,
+            //                 'price' => $membership_cost,
+            //                 'qty' => 1
+            //             ]
+            //         ];
+
+            //         $data['invoice_id'] = uniqid();
+            //         $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
+            //         $data['return_url'] = url('/payment_succ/'.$membership_id.'/'.$page);
+            //         $data['cancel_url'] = url('/payment_failed');
+            //         $data['total'] = $membership_cost;
+
+            //         $response = $provider->setExpressCheckout($data, true);
+            //         // var_dump($response);
+            //         return redirect($response['paypal_link']);
 
              
 
-            }
+            // }
         }else{
-            return redirect('/update_membership/'.$membership_id);
+            return redirect('/update_membership/'.$membership_id.'/'.$page);
         }
 
     }
 
-    public function successful_payment($id, Request $request){
+    public function successful_payment($id, Request $request, $page = false){       
+
+       //  $membership_id = $id;
 
 
-        $membership_id = $id;
+       //  $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
 
-        $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
-
-        $membership_name = $fetch_name->membership_name;
-        $membership_cost = $fetch_name->cost;
+       //  $membership_name = $fetch_name->membership_name;
+       //  $membership_cost = $fetch_name->cost;
         
-        $provider = new ExpressCheckout; 
+       //  $provider = new ExpressCheckout; 
 
-        $token = $request->token;       
+       //  $token = $request->token;       
 
 
-        $response = $provider->getExpressCheckoutDetails($token);
-        $payer_id = $response['PAYERID'];
-        $invoiced_id = $response['INVNUM']??uniqid();
-       $data = [];
-       $data['items'] = [
-           [
-               'name' => $membership_name,
-               'price' => $membership_cost,
-               'qty' => 1
-           ]
-       ];
+       //  $response = $provider->getExpressCheckoutDetails($token);
 
-       $data['invoice_id'] = $invoiced_id;
-       $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
-       $data['return_url'] = url('/payment_succ/'.$membership_id);
-       $data['cancel_url'] = url('/payment_failed');
-       $data['total'] = $membership_cost;
 
-        $response = $provider->doExpressCheckoutPayment($data, $token, $payer_id);
+       //  $payer_id = $response['PAYERID'];
+       //  $invoiced_id = $response['INVNUM']??uniqid();
+       // $data = [];
+       // $data['items'] = [
+       //     [
+       //         'name' => $membership_name,
+       //         'price' => $membership_cost,
+       //         'qty' => 1
+       //     ]
+       // ];
+
+       // $data['invoice_id'] = $invoiced_id;
+       // $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
+       // $data['return_url'] = url('/payment_succ/'.$membership_id.'/'.$page);
+       // $data['cancel_url'] = url('/payment_failed');
+       // $data['total'] = $membership_cost;
+
+       //  $response = $provider->doExpressCheckoutPayment($data, $token, $payer_id);
+       
         
-        
-        if ($response['PAYMENTINFO_0_ACK'] == 'Success') {
-            return redirect('/update_membership/'.$membership_id);
-        }
+       //  if ($response['PAYMENTINFO_0_ACK'] == 'Success') {
+       //      return redirect('/update_membership/'.$membership_id.'/'.$page);
+       //  }
     }
    
     public function unsuccessful_payment(Request $request){
-        var_dump($request);        
+        \Session::flash('message','Payment Cancelled');
+
+        return redirect('/profile');
     }
 
 
-    public function update_membership($id){
-        $membership_id = $id;
-
-        $update_membership = ['membership_id' => $membership_id];
-        
-        DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
-
-        $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
-
-        $membership_name = $fetch_name->membership_name;
-
-        // get upgrade membership email content
-
-        $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
-
-        $upgrade_content = $fetch_content->email_content;
-        $upgrade_subject = $fetch_content->subject;
-
-
-        $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
-        $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
+    // public function update_membership($id, $page = false){
+            
+    //     $membership_id = $id;        
         
 
-        // Fetch admin email
+    //     $page_id = explode(":", $page);
 
-        $fetch_admin_email = DB::table('users')->where('id',1)->first();
+    //     if ($page_id[0] == 'registration') {            
 
-        $admin_email = $fetch_admin_email->email;
+    //         // Update Membership
+    //         $update_membership = ['membership_id' => $membership_id];
+            
+    //         DB::table('users')->where('id', $page_id[1])->update($update_membership);
 
-         $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);         
+    //         // Get user name
 
-        Mail::send([], $data, function ($m) use($data) {                    
-             $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
-         });
+    //         $fetch_uname = DB::table('users')->where('id', $page_id[1])->first();
+    //         $name = $fetch_uname->name;
+    //         $email = $fetch_uname->email;
 
-        \Session::flash('message','Account Upgraded');
-        
-        return redirect("/profile");
+    //         // Get email content from database
+    //         $get_email_content = DB::table('email_templates')->Where('options', 'Registeration')->whereNull('deleted_at')->first();
+    //         $content = $get_email_content->email_content;
+    //         $subject = $get_email_content->subject;
+
+    //         // Get membership name
+    //         $get_membership_name = DB::table('memberships')->Where('id', $membership_id)->whereNull('deleted_at')->first();
+    //         $membership_name = $get_membership_name->membership_name;
+            
+
+
+    //         $name_updated = str_replace('[username]', $name, $content);
+    //         $registration_content = str_replace('[membership]', $membership_name, $name_updated);
+
+
+
+
+    //         $data = array( 'email' => $email, 'subject' => $subject, 'message' => $registration_content);
+
+    //         // Send email
+
+    //         Mail::send([], $data, function ($m) use($data) {                    
+    //             $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+    //         });
+
+    //         return redirect('/signin')->with('message', 'Registerd Successfully Kindly Login');
+    //     }
+    //     else{
+
+
+    //         $update_membership = ['membership_id' => $membership_id];
+            
+    //         DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
+
+    //         $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
+
+    //         $membership_name = $fetch_name->membership_name;
+
+    //         // get upgrade membership email content
+
+    //         $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
+
+    //         $upgrade_content = $fetch_content->email_content;
+    //         $upgrade_subject = $fetch_content->subject;
+
+
+    //         $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
+    //         $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
+            
+
+    //         // Fetch admin email
+
+    //         $fetch_admin_email = DB::table('users')->where('id',1)->first();
+
+    //         $admin_email = $fetch_admin_email->email;
+
+    //          $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);         
+
+    //         Mail::send([], $data, function ($m) use($data) {                    
+    //              $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+    //          });
+
+    //         \Session::flash('message','Account Upgraded');
+            
+    //         // return redirect("/profile");
+    //     }
+
+    // }
+
+
+    public function update_membership($status){
+
+        if ($status == 'true') {
+            
+            $membership_id = Session::get('membershipID');
+            $page = Session::get('page');          
+              
+            $page_id = explode(":", $page);
+
+            if ($page_id[0] == 'registration') {            
+
+                // Update Membership
+                $update_membership = ['membership_id' => $membership_id];
+                
+                DB::table('users')->where('id', $page_id[1])->update($update_membership);
+
+                // Get user name
+
+                $fetch_uname = DB::table('users')->where('id', $page_id[1])->first();
+                $name = $fetch_uname->name;
+                $email = $fetch_uname->email;
+
+                // Get email content from database
+                $get_email_content = DB::table('email_templates')->Where('options', 'Registeration')->whereNull('deleted_at')->first();
+                $content = $get_email_content->email_content;
+                $subject = $get_email_content->subject;
+
+                // Get membership name
+                $get_membership_name = DB::table('memberships')->Where('id', $membership_id)->whereNull('deleted_at')->first();
+                $membership_name = $get_membership_name->membership_name;
+                
+
+
+                $name_updated = str_replace('[username]', $name, $content);
+                $registration_content = str_replace('[membership]', $membership_name, $name_updated);
+
+
+
+
+                $data = array( 'email' => $email, 'subject' => $subject, 'message' => $registration_content);
+
+                // Send email
+
+                Mail::send([], $data, function ($m) use($data) {                    
+                    $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+                });
+
+                return redirect('/signin')->with('message', 'Registerd Successfully Kindly Login');
+            }
+            else{
+
+
+                $update_membership = ['membership_id' => $membership_id];
+                
+                DB::table('users')->where('id', Auth::user()->id)->update($update_membership);
+
+                $fetch_name = DB::table('memberships')->where('id', $membership_id)->first();
+
+                $membership_name = $fetch_name->membership_name;
+
+                // get upgrade membership email content
+
+                $fetch_content = DB::table('email_templates')->where('options','Upgrade')->first();
+
+                $upgrade_content = $fetch_content->email_content;
+                $upgrade_subject = $fetch_content->subject;
+
+
+                $name_updated = str_replace('[username]', Auth::user()->name, $upgrade_content);
+                $membership_updated = str_replace('[membership]', $membership_name, $name_updated); 
+                
+
+                // Fetch admin email
+
+                $fetch_admin_email = DB::table('users')->where('id',1)->first();
+
+                $admin_email = $fetch_admin_email->email;
+
+                 $data = array( 'email' => [Auth::user()->email, $admin_email], 'subject' => $upgrade_subject, 'message' => $membership_updated);         
+
+                Mail::send([], $data, function ($m) use($data) {                    
+                     $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
+                 });
+
+                \Session::flash('message','Account Upgraded');
+                
+                return redirect("/profile");
+            }
+            
+            Session::forget('membershipID');
+            Session::forget('page');
+
+        }else{
+            echo "false";
+        }
     }
 
 
@@ -551,8 +844,12 @@ public function send_mail(Request $form){
     /*********************** Subscription ********************/
 
     public function subscription(){
-        $title = "Subscription";
-        return view('frontend/subscription', compact('title'));
+        if(!Auth::check()){
+            $title = "Subscription";
+            return view('frontend/subscription', compact('title'));
+        }else{
+            return redirect('/');
+        }
     }
 
 

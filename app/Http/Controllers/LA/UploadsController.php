@@ -154,15 +154,15 @@ class UploadsController extends Controller
 			$input = Input::all();
 			
 			if(Input::hasFile('file')) {
-				/*
+				
 				$rules = array(
-					'file' => 'mimes:jpg,jpeg,bmp,png,pdf|max:3000',
+					'file' => 'mimes:jpg,jpeg,bmp,png,pdf,xlsx|max:3000',
 				);
 				$validation = Validator::make($input, $rules);
 				if ($validation->fails()) {
 					return response()->json($validation->errors()->first(), 400);
 				}
-				*/
+				
 				$file = Input::file('file');
 				
 				// print_r($file);

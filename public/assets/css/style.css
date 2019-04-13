@@ -613,7 +613,7 @@ textarea::placeholder {
     background: #f0f4f6;
 }
 .subscription .borderimage .fee-plan {
-    padding: 20px 30px 80px 30px;
+    padding: 20px 30px 18px 30px;
     font-weight: lighter;
     color: #363f48;
     font-size: 11px;

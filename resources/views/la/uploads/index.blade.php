@@ -163,6 +163,11 @@ $(function () {
                     $("#EditFileModal .fileObject").append('<object width="100%" height="325" data="'+bsurl+'/files/'+upload.hash+'/'+upload.name+'"></object>');
                     $("#EditFileModal .fileObject").css("padding", "0px");
                     break;
+                case "xlsx":
+                    // TODO: Object EXCEL
+                    $("#EditFileModal .fileObject").append('<object width="100%" height="325" data="'+bsurl+'/files/'+upload.hash+'/'+upload.name+'"></object>');
+                    $("#EditFileModal .fileObject").css("padding", "0px");
+                    break;
                 default:
                     $("#EditFileModal .fileObject").append('<i class="fa fa-file-text-o"></i>');
                     $("#EditFileModal .fileObject").css("padding", "15px 0px");
@@ -264,6 +269,9 @@ function formatFile(upload) {
         switch (upload.extension) {
             case "pdf":
                 image = '<i class="fa fa-file-pdf-o"></i>';
+                break;
+            case 'xlsx':
+                image = '<i class="fa fa-file-excel-o"></i>';
                 break;
             default:
                 image = '<i class="fa fa-file-text-o"></i>';

@@ -5,6 +5,7 @@
 Route::get('/signin', 'IndexController@user_login_page');
 Route::post('/frontend/login_check', 'IndexController@login_check');
 // Registratoin
+Route::get('/signup/{id}', 'IndexController@user_subscription_page');
 Route::get('/signup', 'IndexController@user_registration_page');
 Route::post('/frontend/register_check', 'IndexController@register_check');
 // Forgot Password
@@ -22,21 +23,30 @@ Route::get('/subscription', 'IndexController@subscription');
 // Homepage
 Route::get('/profile', 'IndexController@profile');
 
-/* ================== Payment Page ================== */
+// Payment Page
 Route::post('/payment_page', 'IndexController@payment_page');
 
-/* ================== Payment Integration ================== */
+	/*============== for registration page ======================*/
+// Payment Integration
+Route::post('/payment_integration/{page}', 'IndexController@payment_integration');
+// Successfull Payment
+Route::get('/payment_succ/{id}/{page}', 'IndexController@successful_payment');
+// Update Membership
+Route::get('/update_membership/{id}/{page}', 'IndexController@update_membership');
+
+
+	/*============== for profile page ======================*/
+// Payment Integration
 Route::post('/payment_integration', 'IndexController@payment_integration');
-
-/* ================== Successfull Payment ================== */
+// Successfull Payment
 Route::get('/payment_succ/{id}', 'IndexController@successful_payment');
+// Update Membership old
+// Route::get('/update_membership/{id}', 'IndexController@update_membership');
+Route::get('/update_membership/{status}', 'IndexController@update_membership');
 
-/* ================== Payment Failed ================== */
+
+// Payment Failed
 Route::get('/payment_failed', 'IndexController@unsuccessful_payment');
-
-/* ================== Update Membership ================== */
-Route::get('/update_membership/{id}', 'IndexController@update_membership');
-
 
 
 
@@ -168,9 +178,6 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	Route::resource(config('laraadmin.adminRoute') . '/email_templates', 'LA\Email_TemplatesController');
 	Route::get(config('laraadmin.adminRoute') . '/email_template_dt_ajax', 'LA\Email_TemplatesController@dtajax');
 
-	/* ================== Upload_Offers ================== */
-	Route::resource(config('laraadmin.adminRoute') . '/upload_offers', 'LA\Upload_OffersController');
-	Route::get(config('laraadmin.adminRoute') . '/upload_offer_dt_ajax', 'LA\Upload_OffersController@dtajax');
 
 	
 
@@ -181,7 +188,11 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Faqs ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/faqs', 'LA\FaqsController');
 	Route::get(config('laraadmin.adminRoute') . '/faq_dt_ajax', 'LA\FaqsController@dtajax');
+
+
+
+
+	/* ================== Leads_Upload_Areas ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/leads_upload_areas', 'LA\Leads_Upload_AreasController');
+	Route::get(config('laraadmin.adminRoute') . '/leads_upload_area_dt_ajax', 'LA\Leads_Upload_AreasController@dtajax');
 });
-
-
-

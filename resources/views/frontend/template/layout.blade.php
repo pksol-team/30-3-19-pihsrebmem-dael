@@ -18,8 +18,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="assets\css\reset.css">
-    <link rel="stylesheet" type="text/css" href="assets\css\style.css?time=<?= time(); ?>">
+    <link rel="stylesheet" type="text/css" href="\assets\css\reset.css?time=<?= time(); ?>">
+    <link rel="stylesheet" type="text/css" href="\assets\css\style.css?time=<?= time(); ?>">
 
 
 
@@ -53,7 +53,7 @@
                 <div class="container">
                     <div class="row">
                         <div id="logo" class="col-4 col-sm-4 col-md-4 col-lg-4">
-                            <img src="assets\images\logo.png">
+                            <img src="\assets\images\logo.png">
                         </div>
                         <div id="nav" class="col-8 col-sm-8 col-md-8 col-lg-8s">
                             <nav>
@@ -108,7 +108,7 @@
 
                                 $file = '/files/'.$get_file->hash.'/'.$get_file->name.''
                             @endphp
-                            <img src="assets/images/logo2.png">
+                            <img src="/assets/images/logo2.png">
                             <p>This is Photoshop's version  of Lorem Ipsum. Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, <a href="{{ $file }}" target="_blank">Terms & Conditions</a></p>
                         </div>
                         <div class="col-lg-4 mid">
@@ -199,7 +199,7 @@
                 $('input[name="cvc"]').attr('required', 'true');
                 $('input[name="exp_month"]').attr('required', 'true');
                 $('input[name="exp_year"]').attr('required', 'true');
-                $('input[name="client_name"]').attr('required', 'true');
+                $('input[name="user_name"]').attr('required', 'true');
                 
                 console.log('testing');
                 $(".strip_data").show();
@@ -260,6 +260,7 @@
 
       $('.disabled').find('div.freebtn form input[type="submit"]').attr('disabled','disabled');
       $('.disabled').find('div.freebtn form input[type="submit"]').css('cursor', 'not-allowed');
+
 
     });
 

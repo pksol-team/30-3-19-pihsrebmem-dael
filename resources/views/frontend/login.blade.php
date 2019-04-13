@@ -37,7 +37,7 @@
 							  </div>
 							  <div class="iump-form-line-register iump-form-password" id="ihc_reg_password_3477">
 							    <label class="iump-labels-register"><span style="color: red;">*</span>Password</label>
-							    <input title="6 characters Minimum" minlength="6" name="password" type="password" class="form-control element-block" placeholder="Password *" required>
+							    <input title="6 characters Minimum"  name="password" type="password" class="form-control element-block" placeholder="Password *" required>
 							    
 							  </div>
 							
