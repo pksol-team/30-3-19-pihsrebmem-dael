@@ -51,9 +51,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[0]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[0]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           
@@ -81,9 +81,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[0]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[0]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           
@@ -110,9 +110,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[1]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[1]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[1]->cost }} / {{ $membership[1]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           
@@ -139,9 +139,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[0]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[0]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           
@@ -167,9 +167,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[1]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[1]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[1]->cost }} / {{ $membership[1]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           
@@ -195,9 +195,9 @@ else{
 						    				<div class="fee-plan">
 						    					<span>{{ $membership[2]->membership_name }}</span>
 						    					<br>
-						    					<h1 style="font-size:18px;">{{ $membership[2]->subscription_period }}</h1>
+						    					<h1 style="font-size:18px;">${{ $membership[2]->cost }} / {{ $membership[2]->subscription_period }}</h1>
 						    					<br>
-						    					<span>Subscription</span>
+						    					
 						    				</div>
 						    				<div class="freebtn">
 						    					@if (!Auth::user())           

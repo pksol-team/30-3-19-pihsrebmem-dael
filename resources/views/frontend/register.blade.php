@@ -50,6 +50,8 @@
 										<input value="{{ $membership_name }}" name="membership_name" type="hidden" class="form-control element-block" placeholder="Enter Name *">
 										<input value="{{ $membership_id }}" name="membership_id" type="hidden" class="form-control element-block" placeholder="Enter Name *" required>
 										<input value="{{ $membership_cost }}" name="membership_cost" type="hidden" class="form-control element-block" placeholder="Enter Name *" required>
+										<input value="{{ $subscription_period }}" name="subscription_period" type="hidden" class="form-control element-block" placeholder="Enter Name *" required>
+										<input value="{{ $stripe_plan_id }}" name="stripeplanId" type="hidden" class="form-control element-block" placeholder="Enter Name *" required>
 			
 									</div>
 								@else

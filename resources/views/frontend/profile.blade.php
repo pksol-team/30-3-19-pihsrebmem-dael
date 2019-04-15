@@ -18,7 +18,9 @@
 				    </div>
 				@endif
 		
-				@php	
+	
+
+				@php					
 					$user_memebership = Auth::user()->membership_id;
 					$user_memebership_level = $membership_level;
 
@@ -129,7 +131,7 @@ else{
 						    	@endphp
 						    	<div class="row">
 						    		@if ($count == 1)
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[0]->cost }}/-</span>
@@ -137,6 +139,7 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[0]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -150,17 +153,25 @@ else{
 								    					<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
 								    					<input type="hidden" name="membership_type" value="{{ $membership[0]->type }}">
 								    					<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
 								    					@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 								    						<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
+								    						<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
 								    					@endif
-								    					{!! Form::submit((Auth::user()->membership_id == $membership[0]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+								    					@if (Auth::user()->membership_id == $membership[0]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 								    					{!! Form::close() !!}
 							    					@endif
 							    				</div>
 							    			</div>
 							    		</div>	
 							    	@elseif($count == 2)
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[0]->cost }}/-</span>
@@ -168,6 +179,8 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[0]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
+
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -180,17 +193,26 @@ else{
 							    						<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
 							    						<input type="hidden" name="membership_type" value="{{ $membership[0]->type }}">
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
+							    						
 							    						@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
+							    							<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
 							    						@endif
-							    						{!! Form::submit((Auth::user()->membership_id == $membership[0]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+							    						@if (Auth::user()->membership_id == $membership[0]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 							    						{!! Form::close() !!}	
 							    					{{-- <span><a class="Subscribe">Subscribe</a></span> --}}
 							    					@endif
 							    				</div>
 							    			</div>
 							    		</div>
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[1]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[1]->cost }}/-</span>
@@ -198,6 +220,8 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[1]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[1]->cost }} / {{ $membership[1]->subscription_period }}</h1>
+
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -210,17 +234,26 @@ else{
 						    							<input type="hidden" name="membership_id" value="{{ $membership[1]->id }}">
 						    							<input type="hidden" name="membership_type" value="{{ $membership[1]->type }}">
 						    							<input type="hidden" name="subscription_period" value="{{ $membership[1]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[1]->id)? 'true': 'false' }}">
+						    							
 						    							@if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
 						    								<input type="hidden" name="planId" value="{{ $membership[1]->plan_id }}">								    						
+						    								<input type="hidden" name="stripeplanId" value="{{ $membership[1]->stripe_plan_id }}">								    						
 						    							@endif
-						    							{!! Form::submit((Auth::user()->membership_id == $membership[1]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+						    							@if (Auth::user()->membership_id == $membership[1]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 						    							{!! Form::close() !!}	
 							    					@endif
 							    				</div>
 							    				</div>
 							    		</div>
 							    	@elseif($count == 3)
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[0]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[0]->cost }}/-</span>
@@ -228,6 +261,7 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[0]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[0]->cost }} / {{ $membership[0]->subscription_period }}</h1>
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -240,16 +274,25 @@ else{
 							    						<input type="hidden" name="membership_id" value="{{ $membership[0]->id }}">
 							    						<input type="hidden" name="membership_type" value="{{ $membership[0]->type }}">
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
+							    						
 							    						@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
+							    							<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
 							    						@endif
-							    						{!! Form::submit((Auth::user()->membership_id == $membership[0]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+							    						@if (Auth::user()->membership_id == $membership[0]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 							    						{!! Form::close() !!}
 							    					@endif
 							    				</div>
 							    			</div>
 							    		</div>
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[1]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[1]->cost }}/-</span>
@@ -257,6 +300,7 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[1]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[1]->cost }} / {{ $membership[1]->subscription_period }}</h1>							    					
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -269,16 +313,24 @@ else{
 								    					<input type="hidden" name="membership_id" value="{{ $membership[1]->id }}">
 								    					<input type="hidden" name="membership_type" value="{{ $membership[1]->type }}">
 								    					<input type="hidden" name="subscription_period" value="{{ $membership[1]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[1]->id)? 'true': 'false' }}">
 								    					@if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
 								    						<input type="hidden" name="planId" value="{{ $membership[1]->plan_id }}">								    						
+								    						<input type="hidden" name="stripeplanId" value="{{ $membership[1]->stripe_plan_id }}">								    						
 								    					@endif
-								    					{!! Form::submit((Auth::user()->membership_id == $membership[1]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+								    					@if (Auth::user()->membership_id == $membership[1]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 								    					{!! Form::close() !!}
 							    					@endif
 							    				</div>
 							    				</div>
 							    		</div>
-							    		<div class="col-lg-4 {{ (Auth::user()->membership_id == $membership[2]->id)? 'disabled': '' }}">
+							    		<div class="col-lg-4 ">
 							    			<div class="borderimage text-center">
 							    				<div class="free">
 							    					<span>{{ $membership[2]->cost }}/-</span>
@@ -286,6 +338,7 @@ else{
 							    				</div>
 							    				<div class="fee-plan">
 							    					<span>{{ $membership[2]->membership_name }}</span>
+						    						<h1 style="font-size:18px;">${{ $membership[2]->cost }} / {{ $membership[2]->subscription_period }}</h1>							    					
 							    				</div>
 							    				<div class="freebtn">
 							    					@if (!Auth::user())           
@@ -298,10 +351,18 @@ else{
 							    						<input type="hidden" name="membership_id" value="{{ $membership[2]->id }}">
 							    						<input type="hidden" name="membership_type" value="{{ $membership[2]->type }}">
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[2]->subscription_period }}">
+								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[2]->id)? 'true': 'false' }}">
 							    						@if ($membership[2]->type == 'Paid' && $membership[2]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[2]->plan_id }}">								    						
+							    							<input type="hidden" name="stripeplanId" value="{{ $membership[2]->stripe_plan_id }}">								    						
 							    						@endif
-							    						{!! Form::submit( (Auth::user()->membership_id == $membership[2]->id)? 'Unsubscribe': 'Subscribe', ['class'=>'btn btn-success']) !!}
+							    						@if (Auth::user()->membership_id == $membership[2]->id)
+								    						
+								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
+								    					@else
+								    					{!! Form::submit('Subscribe', ['class'=>'btn btn-success']) !!}
+
+								    					@endif
 							    						{!! Form::close() !!}
 							    					@endif
 							    				</div>

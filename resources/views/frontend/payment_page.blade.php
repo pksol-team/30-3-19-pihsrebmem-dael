@@ -28,8 +28,11 @@
 
 						 		@if ($form_data[4] != 'Free' && $form_data[5] != 'Lifetime')
 						 			<input type="hidden" name="planId" class="form-control element-block" value="{{ $form_data[6] }}">							  							 								 			
+						 			<input type="hidden" name="stripeplanId" class="form-control element-block" value="{{ $form_data[7] }}">							  							 								 			
 						 		@endif
 
+						 		<input type="hidden" value="{{ Auth::user()->email }}" name="email">
+		
 							  {{-- Payment Option --}}
 		
 							  <div class="row">

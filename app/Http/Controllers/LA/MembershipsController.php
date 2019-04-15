@@ -106,7 +106,11 @@ class MembershipsController extends Controller
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request)
-	{	
+	{
+		$random_number = $this->randomNumber();
+
+		// Subscription Plan
+
 		if ($request->subscription_period != 'Lifetime') {
 			
 			if($request->cost > 0 && $request->type == 'Paid'){
@@ -114,48 +118,22 @@ class MembershipsController extends Controller
 				$frequency_interval = explode(' ', $request->subscription_period);
 
 				$frequency = $frequency_interval[1];
+				
 				$frequencyInterval = $frequency_interval[0];			
 
-				$plan = new Plan();
+				// Create Stripe Plan 
+				// $this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $request->cost, $request->membership_name);
 
-				$plan->setName($request->membership_name)
-				    ->setDescription("Membership Name: ".$request->membership_name."<br>Type: ".$request->type."<br>Cost: ".$request->cost."<br>Subscription Period: ".$request->subscription_period)
-				    ->setType('fixed');  
+				// $stripePlanID = $random_number;
 
-				$paymentDefinition = new PaymentDefinition();
 
-				$paymentDefinition->setName('Regular Payments')
-				    ->setType('REGULAR')
-				    ->setFrequency($frequency)
-				    ->setFrequencyInterval($frequencyInterval)
-				    ->setCycles("12")
-				    ->setAmount(new Currency(array('value' => $request->cost, 'currency' => 'USD')));
+				// Create Paypal Plan 
+				$paypalPlanId = $this->createdPaypalPlan($request->membership_name, $request->cost, $request->subscription_period, $frequency, $frequencyInterval, $request->type);
 
-				$chargeModel = new ChargeModel();
+				$plan_id = $paypalPlanId;				
+
 				
-				$chargeModel->setType('SHIPPING')
-				    ->setAmount(new Currency(array('value' => 0, 'currency' => 'USD')));
-
-				$paymentDefinition->setChargeModels(array($chargeModel));
-
-
-
-				$merchantPreferences = new MerchantPreferences();
-
-				$merchantPreferences->setReturnUrl(url("/update_membership/true"))
-				    ->setCancelUrl(url("/update_membership/false"))
-				    ->setAutoBillAmount("yes")
-				    ->setInitialFailAmountAction("CONTINUE")
-				    ->setMaxFailAttempts("0")
-				    ->setSetupFee(new Currency(array('value' => 0, 'currency' => 'USD')));
 				
-				$plan->setPaymentDefinitions(array($paymentDefinition));
-				
-				$plan->setMerchantPreferences($merchantPreferences);
-				
-				$output = $plan->create($this->apiContext);
-
-				$plan_id = $output->id;				
 
 				// update status
 
@@ -178,15 +156,17 @@ class MembershipsController extends Controller
 
 			    $createdPlan->update($patchRequest, $this->apiContext);
 
-				
-				
+				$updatedPlan = $plan->get($plan_id, $this->apiContext);
+				$plan_id = '';
 			}else{
 				$plan_id = '';
+				$stripePlanID = '';
 			}
 
 		}
 		else{
 				$plan_id = '';
+				$stripePlanID = '';				
 			}
 
 
@@ -204,7 +184,7 @@ class MembershipsController extends Controller
 			
 			$insert_id = Module::insert("Memberships", $request);
 			
-			$update_planId = ['plan_id' => $plan_id];
+			$update_planId = ['plan_id' => $plan_id, 'stripe_plan_id' => $stripePlanID];
 			
 			DB::table('memberships')->where('id', $insert_id)->update($update_planId);
 
@@ -285,29 +265,24 @@ class MembershipsController extends Controller
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, $id)
-	{
-
-        $fetch_membership = DB::table('memberships')->where('id', $id)->first();
-
-        $planId = $fetch_membership->plan_id;
-
+	{		
         $type = $request->type;
         
         $cost = $request->cost;
         
         $subscription_period = $request->subscription_period;        
+
+        $fetch_membership = DB::table('memberships')->where('id', $id)->first();
+
+        $planId = $fetch_membership->plan_id;
         
+        $stripeplanId = $fetch_membership->stripe_plan_id;        
         
         // updating plan id if plan is not lifetime
         
         if ($subscription_period != 'Lifetime') {
         
-	        if (!empty($planId) && $type == 'Paid' && $cost > 0) {
-
-	      //   	$params = array('page_size' => '20');
-    			// $planList = Plan::all($params, $this->apiContext);
-    			// dump($planList);
-    			// exit();
+	        if ($type == 'Paid' && $cost > 0) {	     
 	        	
 				$frequency_interval = explode(' ', $subscription_period);
 
@@ -315,57 +290,82 @@ class MembershipsController extends Controller
 				
 				$frequencyInterval = $frequency_interval[0];
 
-				$plan = new Plan();
+				// Stripe subscription updation				
 
-				$createdPlan = $plan->get($planId, $this->apiContext);
+				if (!empty($stripeplanId)) {
+					// first delete the plan
+					
+					$this->deleteStripePlan($stripeplanId);					
 
-				dump($createdPlan);
-				exit();
+					$this->stripePlanCreated($stripeplanId, $frequency, $frequencyInterval, $cost, $request->membership_name);
+					
+				}else{
+					
+					$random_number = $this->randomNumber();
 
-				$patch = new Patch();
+					$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $cost, $request->membership_name);
 
-			    $paymentDefinitions = $createdPlan->getPaymentDefinitions();
-			    
-			    $paymentDefinitionId = $paymentDefinitions[0]->getId();		 
+					$stripeplanId = $random_number;
+					
+				}
 
-  // "name": "Updated Payment Definition",
-	 //                           "frequency": "'.$frequency.'",
-	 //                           "amount": {
-	 //                               "currency": "USD",
-	 //                               "value": "'.$cost.'"
-	 //                           },
-	 //                           "frequency_interval": "'.$frequencyInterval.'"
-				$patch->setOp('replace')
-			       ->setPath('/payment-definitions/' . $paymentDefinitionId)
-			       ->setValue(json_decode(
-			           '{
-
-			           		"name": "Updated Payment Definition",
-	   		                  "frequency": "Day",
-	   		                  "amount": {
-	   		                      "currency": "USD",
-	   		                      "value": "50"
-	   		                  }
-	                         
-	                   }'
-			       ));
-			    $patchRequest = new PatchRequest();
-			   
-			    $patchRequest->addPatch($patch);			   
-			    // echo "patch request";
-			    // dump($patchRequest);
-			    $createdPlan->update($patchRequest, $this->apiContext);
 				
-				echo "updated plan";
 
-			    dump($createdPlan);
-			    exit();	
-			    $plan = $plan->get($planId, $this->apiContext);
+				// Paypal Subscription Updation
+
+				$plan_id = '';
+				// $plan = new Plan();
+
+				// $createdPlan = $plan->get($planId, $this->apiContext);
+
+				// dump($createdPlan);
+				// exit();
+				// $patch = new Patch();
+
+			 //    $paymentDefinitions = $createdPlan->getPaymentDefinitions();
+			    
+			 //    $paymentDefinitionId = $paymentDefinitions[0]->getId();		 
+
+				// $patch->setOp('replace')
+			 //       ->setPath('/payment-definitions/' . $paymentDefinitionId)
+			 //       ->setValue(json_decode(
+			 //           '{			           		
+    //    		  				"name": "Updated Payment Definition",
+    //                        	"frequency": "'.$frequency.'",
+    //                        	"amount": {
+    //                            "currency": "USD",
+    //                            "value": "'.$cost.'"
+    //                        	},
+    //                        	"frequency_interval": "'.$frequencyInterval.'"	                         
+	   //                 }'
+			 //       ));
+			 //    $patchRequest = new PatchRequest();
+			   
+			 //    $patchRequest->addPatch($patch);			   
+			   
+			 //    $createdPlan->update($patchRequest, $this->apiContext);
+				
+				// echo "updated plan";
+
+			 //    dump($createdPlan);
+			 //    exit();	
+			 //    $plan = $plan->get($planId, $this->apiContext);
 				
 
 	        }        	
-        }
+        }else{
+    		if (!empty($stripeplanId)) {
+    			$this->deleteStripePlan($stripeplanId);
+    			$stripeplanId = '';
+    		}
 
+    		if (!empty($planId)) {
+    			echo $planId;
+    			$planId = '';
+    		}  
+        	
+        }
+        
 		if(Module::hasAccess("Memberships", "edit")) {
 			
 			$rules = Module::validateRules("Memberships", $request, true);
@@ -377,6 +377,10 @@ class MembershipsController extends Controller
 			}
 			
 			$insert_id = Module::updateRow("Memberships", $request, $id);
+
+			$update_planId = ['plan_id' => $planId, 'stripe_plan_id' => $stripeplanId];
+			
+			DB::table('memberships')->where('id', $insert_id)->update($update_planId);
 
 			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
 			
@@ -446,5 +450,100 @@ class MembershipsController extends Controller
 		}
 		$out->setData($data);
 		return $out;
+	}
+
+	public function randomNumber(){
+
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		   
+		$charactersLength = strlen($characters);
+		
+		$randomString = '';
+		
+		for ($i = 0; $i < 10; $i++) {
+		
+		    $randomString .= $characters[rand(0, $charactersLength - 1)];
+		
+		}	
+
+		return $randomString;	
+	}
+
+	public function stripePlanCreated($random_number, $frequency, $frequencyInterval, $cost, $membership_name){
+		// Stripe Subscription Plan
+
+		$stripe = new \Stripe\Stripe();
+
+		$stripe_plan = new \Stripe\Plan();
+
+		$stripe->setApiKey("sk_test_doaAddzso5GZH5xoQ4YwDbQO");
+
+		$stripe_plan->create([
+		  "amount" => $cost * 100,
+		  "interval" => strtolower($frequency),
+		  "interval_count" => $frequencyInterval,
+		  "product" => [
+		    "name" => $membership_name
+		  ],
+		  "currency" => "usd",
+		  "id" => $random_number
+		]);
+
+		
+	}
+
+	public function deleteStripePlan($id){
+		$stripe = new \Stripe\Stripe();
+
+		$stripe_plan = new \Stripe\Plan();
+
+		$stripe->setApiKey("sk_test_doaAddzso5GZH5xoQ4YwDbQO");
+
+		$plan = $stripe_plan->retrieve($id);
+		
+		$plan->delete();
+	}
+
+	public function createdPaypalPlan($membership_name, $cost, $subscription_period, $frequency, $frequencyInterval, $type){
+		$plan = new Plan();
+
+		$plan->setName($membership_name)
+		    ->setDescription("Membership Name: ".$membership_name."<br>Type: ".$type."<br>Cost: ".$cost."<br>Subscription Period: ".$subscription_period)
+		    ->setType('fixed');  
+
+		$paymentDefinition = new PaymentDefinition();
+
+		$paymentDefinition->setName('Regular Payments')
+		    ->setType('REGULAR')
+		    ->setFrequency($frequency)
+		    ->setFrequencyInterval($frequencyInterval)
+		    ->setCycles("1")
+		    ->setAmount(new Currency(array('value' => $cost, 'currency' => 'USD')));
+
+		// $chargeModel = new ChargeModel();
+		
+		// $chargeModel->setType('SHIPPING')
+		//     ->setAmount(new Currency(array('value' => 0, 'currency' => 'USD')));
+
+		// $paymentDefinition->setChargeModels(array($chargeModel));
+
+
+
+		$merchantPreferences = new MerchantPreferences();
+
+		$merchantPreferences->setReturnUrl(url("/update_membership/true"))
+		    ->setCancelUrl(url("/update_membership/false"))
+		    ->setAutoBillAmount("yes")
+		    ->setInitialFailAmountAction("CONTINUE")
+		    ->setMaxFailAttempts("0")
+		    ->setSetupFee(new Currency(array('value' => 0, 'currency' => 'USD')));
+		
+		$plan->setPaymentDefinitions(array($paymentDefinition));
+		
+		$plan->setMerchantPreferences($merchantPreferences);
+		
+		$output = $plan->create($this->apiContext);
+
+		return $output->id;
 	}
 }
