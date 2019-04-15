@@ -106,7 +106,8 @@ class MembershipsController extends Controller
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request)
-	{
+	{	
+
 		$random_number = $this->randomNumber();
 
 		// Subscription Plan
@@ -121,43 +122,17 @@ class MembershipsController extends Controller
 				
 				$frequencyInterval = $frequency_interval[0];			
 
-				// Create Stripe Plan 
-				// $this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $request->cost, $request->membership_name);
+				// Create Stripe Plan 				
+				$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $request->cost, $request->membership_name);
 
-				// $stripePlanID = $random_number;
+				$stripePlanID = $random_number;
 
 
 				// Create Paypal Plan 
 				$paypalPlanId = $this->createdPaypalPlan($request->membership_name, $request->cost, $request->subscription_period, $frequency, $frequencyInterval, $request->type);
 
-				$plan_id = $paypalPlanId;				
-
+					$plan_id = $paypalPlanId;	
 				
-				
-
-				// update status
-
-				$patch = new Patch();
-
-				$plan = new Plan();
-
-				$createdPlan = $plan->get($plan_id, $this->apiContext);
-
-			    $value = new PayPalModel('{
-				       "state":"ACTIVE"
-				     }');
-
-			    $patch->setOp('replace')
-			        ->setPath('/')
-			        ->setValue($value);
-			    $patchRequest = new PatchRequest();
-			    
-			    $patchRequest->addPatch($patch);
-
-			    $createdPlan->update($patchRequest, $this->apiContext);
-
-				$updatedPlan = $plan->get($plan_id, $this->apiContext);
-				$plan_id = '';
 			}else{
 				$plan_id = '';
 				$stripePlanID = '';
@@ -168,8 +143,6 @@ class MembershipsController extends Controller
 				$plan_id = '';
 				$stripePlanID = '';				
 			}
-
-
 
 
 		if(Module::hasAccess("Memberships", "create")) {
@@ -307,49 +280,11 @@ class MembershipsController extends Controller
 
 					$stripeplanId = $random_number;
 					
-				}
-
-				
+				}			
 
 				// Paypal Subscription Updation
 
-				$plan_id = '';
-				// $plan = new Plan();
-
-				// $createdPlan = $plan->get($planId, $this->apiContext);
-
-				// dump($createdPlan);
-				// exit();
-				// $patch = new Patch();
-
-			 //    $paymentDefinitions = $createdPlan->getPaymentDefinitions();
-			    
-			 //    $paymentDefinitionId = $paymentDefinitions[0]->getId();		 
-
-				// $patch->setOp('replace')
-			 //       ->setPath('/payment-definitions/' . $paymentDefinitionId)
-			 //       ->setValue(json_decode(
-			 //           '{			           		
-    //    		  				"name": "Updated Payment Definition",
-    //                        	"frequency": "'.$frequency.'",
-    //                        	"amount": {
-    //                            "currency": "USD",
-    //                            "value": "'.$cost.'"
-    //                        	},
-    //                        	"frequency_interval": "'.$frequencyInterval.'"	                         
-	   //                 }'
-			 //       ));
-			 //    $patchRequest = new PatchRequest();
-			   
-			 //    $patchRequest->addPatch($patch);			   
-			   
-			 //    $createdPlan->update($patchRequest, $this->apiContext);
-				
-				// echo "updated plan";
-
-			 //    dump($createdPlan);
-			 //    exit();	
-			 //    $plan = $plan->get($planId, $this->apiContext);
+				$this->deletePaypalPlan($planId);		
 				
 
 	        }        	
@@ -505,7 +440,12 @@ class MembershipsController extends Controller
 	}
 
 	public function createdPaypalPlan($membership_name, $cost, $subscription_period, $frequency, $frequencyInterval, $type){
+
 		$plan = new Plan();
+
+		$patch = new Patch();
+
+	    $patchRequest = new PatchRequest();		
 
 		$plan->setName($membership_name)
 		    ->setDescription("Membership Name: ".$membership_name."<br>Type: ".$type."<br>Cost: ".$cost."<br>Subscription Period: ".$subscription_period)
@@ -520,15 +460,6 @@ class MembershipsController extends Controller
 		    ->setCycles("1")
 		    ->setAmount(new Currency(array('value' => $cost, 'currency' => 'USD')));
 
-		// $chargeModel = new ChargeModel();
-		
-		// $chargeModel->setType('SHIPPING')
-		//     ->setAmount(new Currency(array('value' => 0, 'currency' => 'USD')));
-
-		// $paymentDefinition->setChargeModels(array($chargeModel));
-
-
-
 		$merchantPreferences = new MerchantPreferences();
 
 		$merchantPreferences->setReturnUrl(url("/update_membership/true"))
@@ -542,8 +473,31 @@ class MembershipsController extends Controller
 		
 		$plan->setMerchantPreferences($merchantPreferences);
 		
-		$output = $plan->create($this->apiContext);
+		$output = $plan->create($this->apiContext);		
 
-		return $output->id;
+		$plan_id = $output->id;
+
+		$createdPlan = $plan->get($plan_id, $this->apiContext);
+		
+		$value = new PayPalModel('{		    		
+		       "state":"ACTIVE"
+		     }');			
+
+	    $patch->setOp('replace')
+	        ->setPath('/')
+	        ->setValue($value);
+	    
+	    $patchRequest->addPatch($patch);
+
+	    $createdPlan->update($patchRequest, $this->apiContext);
+
+		$updatedPlan = $plan->get($plan_id, $this->apiContext);
+		
+		return $plan_id;
+	}
+
+	public function deletePaypalPlan($id){
+
+		$result = $createdPlan->delete($this->apiContext);
 	}
 }
