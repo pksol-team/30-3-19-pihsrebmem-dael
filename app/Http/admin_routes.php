@@ -1,5 +1,9 @@
 <?php
 
+Route::get('/createplan', 'IndexController@createPlan');
+
+
+
 /* ================== Frontend ================== */
 // Login
 Route::get('/signin', 'IndexController@user_login_page');

@@ -47,6 +47,15 @@ use PayPal\Api\Patch;
 use PayPal\Api\PatchRequest;
 use PayPal\Common\PayPalModel;
 
+// one time payment
+use PayPal\Api\Item;
+use PayPal\Api\Transaction;
+use PayPal\Api\Amount;
+use PayPal\Api\RedirectUrls;
+use PayPal\Api\Payment;
+use PayPal\Api\Details;
+use PayPal\Api\ItemList;
+use PayPal\Api\PaymentExecution;
 
 
 
@@ -59,7 +68,7 @@ class IndexController extends Controller
 {
     // varibale to get paypal credentials
     public $apiContext;   
-
+    public $stripeKey;
     /**
      * Create a new controller instance.
      *
@@ -76,6 +85,9 @@ class IndexController extends Controller
                     env('PAYPAL_SECRET')// ClientSecret
                 )
         );
+
+            
+        $this->stripeKey = Stripe::setApiKey('sk_test_doaAddzso5GZH5xoQ4YwDbQO');
 
     }   
 
@@ -203,15 +215,6 @@ public function send_mail(Request $form){
 
 
 
-/*********************** Email Template********************/
-
-// public function mail_template_page(){
-
-//     return view('frontend/mail_template_page');
-// }
-
-
-
 
 /*********************** Login ********************/
     public function user_login_page(){
@@ -326,38 +329,8 @@ public function send_mail(Request $form){
 
             echo IndexController::payment_integration($data, $page);            
             
-
-            // // Get email content from database
-            // $get_email_content = DB::table('email_templates')->Where('options', 'Registeration')->whereNull('deleted_at')->first();
-            // $content = $get_email_content->email_content;
-            // $subject = $get_email_content->subject;
-
-            // // Get membership name
-            // $get_membership_name = DB::table('memberships')->Where('id', $membership_id)->whereNull('deleted_at')->first();
-            // $membership_name = $get_membership_name->membership_name;
-        
-
-
-            // $name_updated = str_replace('[username]', $name, $content);
-            // $registration_content = str_replace('[membership]', $membership_name, $name_updated);
-
-
-
-
-            // $data = array( 'email' => $email, 'subject' => $subject, 'message' => $registration_content);
-
-            // // Send email
-
-            // Mail::send([], $data, function ($m) use($data) {                    
-            //     $m->to($data['email'])->subject($data['subject'])->setBody($data['message'], 'text/html');
-            // });
-
-            // return redirect('/signin')->with('message', 'Registerd Successfully Kindly Login');
-        }
+            }
         else {
-            // echo "failed";
-            // \Session::flash('message', $authenticateResult);
-            // return redirect()->back()->with('error', 'error');
             return redirect()->back()->withInput()->with('message', $authenticateResult);
         }
 
@@ -455,7 +428,8 @@ public function send_mail(Request $form){
         if($unsubscribe == 'true'){
             $stripe = new \Stripe\Stripe();
 
-            $stripe->setApiKey("sk_test_doaAddzso5GZH5xoQ4YwDbQO");
+            $this->stripeKey;
+            // $stripe->setApiKey("sk_test_doaAddzso5GZH5xoQ4YwDbQO");
 
             $sub_id = Auth::user()->stripe_subscription_id;
             // check if subscription is stripe
@@ -521,16 +495,25 @@ public function send_mail(Request $form){
         Session::set('membershipID', $membership_id);
         Session::set('page', $page);
         Session::set('paymentMethod', $option);
+        // for delete/cancel the previous subscription
+        Session::set('old_stripesubscriptioID', Auth::user()->stripe_subscription_id);
+        Session::set('old_paypalsubscriptioID', Auth::user()->paypal_subscription_id);
+
         
         // if cost greater then 0 or not free
         if($membership_cost > 0 && $membership_type != 'Free' ) {
 
-            Stripe::setApiKey('sk_test_doaAddzso5GZH5xoQ4YwDbQO');
+            // Stripe secret Key
+            $this->stripeKey;            
 
             if ($subscription_period != 'Lifetime') {
 
+                Session::set('subscription', '');
+
                 // for subscription plan
                 if($option == 'stripe'){
+
+                    $stripe_subscription = new \Stripe\Subscription();
 
                     // Create customer id using stripe token
                     $stripeCustomer = new \Stripe\Customer();
@@ -543,7 +526,8 @@ public function send_mail(Request $form){
 
                     // retrived from db
                     $stripeplanId = $request->stripeplanId;                                        
-                    $stripe_subscription = new \Stripe\Subscription();
+                    
+                    // Create a new subscription
 
                     try{
 
@@ -556,7 +540,7 @@ public function send_mail(Request $form){
                               ]
                         ]);                                               
 
-                        Session::set('subscriptioID', $createdSubscription->id);
+                        Session::set('new_stripe_sub_ID', $createdSubscription->id);
 
                         return redirect('/update_membership/true');
 
@@ -569,7 +553,9 @@ public function send_mail(Request $form){
                     }
 
                 }                
-                else{             
+                else{ 
+
+                    Session::set('new_stripe_sub_ID', '');
 
                     // setting the agreement start time after two minutes
                     $st = date("Y-m-d\TH:i:s\Z",strtotime('+2 minute'));
@@ -615,8 +601,12 @@ public function send_mail(Request $form){
                 }               
             }
             else{
+
+                Session::set('subscription', 'Lifetime');
+
                 // for one time payment
                 if($option == 'stripe'){
+                    
                     try{
                         Charge::create(array(
                             'amount' => $membership_cost*100,
@@ -625,6 +615,9 @@ public function send_mail(Request $form){
                             'description' => 'Membership upgraded to '.$membership_name
                         ));                         
                         
+                         Session::set('new_stripe_sub_ID', '');
+                        
+
                         return redirect('/update_membership/true');
                         
 
@@ -633,15 +626,60 @@ public function send_mail(Request $form){
                     \Session::flash('message',$e->getMessage());
                     echo $e->getMessage();
                      return redirect('/profile');
-                    }
-                    
-                    // \Session::flash('message','Account Upgraded');
-                    
-                    // return redirect("/profile");
+                    }                   
+                   
                 }
                 else{
 
-                   
+                    Session::set('new_stripe_sub_ID', '');
+
+                    $payer = new Payer();
+                    $payer->setPaymentMethod("paypal");
+
+                    $item = new Item();
+                    $item->setName($membership_name)
+                        ->setCurrency('USD')
+                        ->setQuantity(1)
+                        ->setSku($membership_id) // Similar to `item_number` in Classic API
+                        ->setPrice($membership_cost); 
+
+                    $itemList = new ItemList();
+                    $itemList->setItems(array($item));
+
+                    $details = new Details();
+                    $details->setShipping(0)
+                        ->setTax(0)
+                        ->setSubtotal($membership_cost);
+
+                    $amount = new Amount();
+                    $amount->setCurrency("USD")
+                        ->setTotal($membership_cost)
+                        ->setDetails($details);                    
+
+                    $transaction = new Transaction();
+                    $transaction->setAmount($amount)
+                        ->setItemList($itemList)
+                        ->setDescription("Payment description")
+                        ->setInvoiceNumber(uniqid());   
+
+                    $redirectUrls = new RedirectUrls();
+                    $redirectUrls->setReturnUrl(url("/update_membership/true"))
+                        ->setCancelUrl(url("/update_membership/false"));  
+
+                    $payment = new Payment();
+                    $payment->setIntent("sale")
+                        ->setPayer($payer)
+                        ->setRedirectUrls($redirectUrls)
+                        ->setTransactions(array($transaction));            
+
+                    $payment->create($this->apiContext);
+
+                    $approvalUrl = $payment->getApprovalLink();                   
+                    
+                    Session::set('paymentMethod', '');
+
+                    return redirect($approvalUrl);
+
 
                 }
                 // else if($option == 'paypal'){
@@ -824,14 +862,42 @@ public function send_mail(Request $form){
             $membership_id = Session::get('membershipID');
             $page = Session::get('page');          
             $payment_method = Session::get('paymentMethod');
-            $subscriptionid = Session::get('subscriptioID');
-            
+            $subscriptionid = Session::get('new_stripe_sub_ID');
+            $stripeSubscriptionID = Session::get('old_stripesubscriptioID');
+            $paypalSubscriptionID = Session::get('old_paypalsubscriptioID');
+            $subscription = Session::get('subscription');
 
+            $stripe_subscription = new \Stripe\Subscription();
+
+            // First delete the previous susbcription
+            if(!empty($stripeSubscriptionID)){               
+                
+                $sub = $stripe_subscription->retrieve($stripeSubscriptionID);
+              
+                $sub->cancel();                                            
+                
+            }
+
+            if(!empty($paypalSubscriptionID)){
+                echo "delete paypal agreement id";
+            }
 
 
             $subscriptionID = ['stripe_subscription_id' => $subscriptionid];
 
             $page_id = explode(":", $page);
+
+            if ($subscription == 'Lifetime') {
+                
+                $paymentId = $_GET['paymentId'];
+                $payment = Payment::get($paymentId, $this->apiContext);
+
+                $execution = new PaymentExecution();
+                $execution->setPayerId($_GET['PayerID']);
+
+                $result = $payment->execute($execution, $this->apiContext);
+              
+            }
 
             if ($payment_method == 'paypal') {
                
@@ -845,6 +911,8 @@ public function send_mail(Request $form){
                 
                 exit();
             } 
+
+
 
             
             // subscribing from registration page
@@ -965,7 +1033,160 @@ public function send_mail(Request $form){
     }
 
 
+    public function createPlan(){
 
+        //******************************* Create Product
+        // $ch = curl_init();
+
+        // curl_setopt($ch, CURLOPT_URL, 'https://api.sandbox.paypal.com/v1/catalogs/products');
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_POST, 1);
+
+        // $headers = array();
+        // $headers[] = 'Content-Type: application/json';
+        // $headers[] = 'Authorization: Bearer A21AAHYooeQqO3vtmUn4YhRB4Ekwt3JJqrAYCOne4aVf4tbMv_wtg9pGzRRSquvIxMdOE421uonx1W4LyRjJ2vyis3c1Ngf9Q';
+        // $headers[] = 'Paypal-Request-Id: merchant-generated-ID  // optional and needed for idempotent samples';
+        // $data = '{"name": "Video Streaming Service",
+        //           "description": "Video streaming service",
+        //           "type": "SERVICE",
+        //           "category": "SOFTWARE",
+        //           "image_url": "https://example.com/streaming.jpg",
+        //           "home_url": "https://example.com/home"}';
+
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $result = curl_exec($ch);
+        // if (curl_errno($ch)) {
+        //     echo 'Error:' . curl_error($ch);
+        // }else{
+        //     dump($result);
+        // }
+        // curl_close ($ch);
+
+        // ********************************Create Plan
+
+ //        $ch = curl_init();
+
+ //        curl_setopt($ch, CURLOPT_URL, 'https://api.sandbox.paypal.com/v1/billing/plans');
+ //        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+ //        curl_setopt($ch, CURLOPT_POSTFIELDS, '{
+ //    "product_id": "PROD-82W27320X1507341E",
+ //    "name": "Basic Plan",
+ //      "description": "Basic plan",
+ //      "billing_cycles": [
+ //        {
+ //          "frequency": {
+ //            "interval_unit": "MONTH",
+ //            "interval_count": 1
+ //          },
+ //          "tenure_type": "TRIAL",
+ //          "sequence": 1,
+ //          "total_cycles": 1
+ //        },
+ //        {
+ //          "frequency": {
+ //            "interval_unit": "MONTH",
+ //            "interval_count": 1
+ //          },
+ //          "tenure_type": "REGULAR",
+ //          "sequence": 2,
+ //          "total_cycles": 12,
+ //          "pricing_scheme": {
+ //            "fixed_price": {
+ //              "value": "10",
+ //              "currency_code": "USD"
+ //            }
+ //          }
+ //        }
+ //      ],
+ //      "payment_preferences": {
+ //        "service_type": "PREPAID",
+ //        "auto_bill_outstanding": true,
+ //        "setup_fee": {
+ //          "value": "10",
+ //          "currency_code": "USD"
+ //        },
+ //        "setup_fee_failure_action": "CONTINUE",
+ //        "payment_failure_threshold": 3
+ //      },
+ //      "taxes": {
+ //        "percentage": "10",
+ //        "inclusive": false
+ //     }
+ //   }
+ // }');
+ //        curl_setopt($ch, CURLOPT_POST, 1);
+
+ //        $headers = array();
+ //        $headers[] = 'Accept: application/json';
+ //        $headers[] = 'Prefer: return=representation';
+ //        $headers[] = 'Content-Type: application/json';
+ //        $headers[] = 'Authorization: Bearer A21AAHYooeQqO3vtmUn4YhRB4Ekwt3JJqrAYCOne4aVf4tbMv_wtg9pGzRRSquvIxMdOE421uonx1W4LyRjJ2vyis3c1Ngf9Q';
+
+ //        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+ //        $result = curl_exec($ch);
+ //        if (curl_errno($ch)) {
+ //            echo 'Error:' . curl_error($ch);
+ //        }else{
+ //            dump($result);
+ //        }
+ //        curl_close ($ch);
+
+    // **************************** List of plan
+
+        // $ch = curl_init();
+
+        // curl_setopt($ch, CURLOPT_URL, 'https://api.sandbox.paypal.com/v1/billing/plans?page_size=2&page=1&total_required=true');
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+
+
+        // $headers = array();
+        // $headers[] = 'Content-Type: application/json';
+        // $headers[] = 'Authorization: Bearer A21AAHYooeQqO3vtmUn4YhRB4Ekwt3JJqrAYCOne4aVf4tbMv_wtg9pGzRRSquvIxMdOE421uonx1W4LyRjJ2vyis3c1Ngf9Q';
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // $result = curl_exec($ch);
+        // if (curl_errno($ch)) {
+        //     echo 'Error:' . curl_error($ch);
+        // }else{
+        //     dump($result);
+        // }
+        // curl_close ($ch);
+
+        // ************************** Update plan
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api.sandbox.paypal.com/v1/billing/plans/P-2F553062DY803671TLS2Z3WI');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, '[{
+                                            "op": "replace",
+                                            "path": "/billing_cycles/frequency",
+                                            "value": "{
+                                                    "interval_unit": "YEAR",
+                                                    "interval_count": 2            
+                                                }"
+                                          }]'
+                                        );
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Authorization: Bearer A21AAHYooeQqO3vtmUn4YhRB4Ekwt3JJqrAYCOne4aVf4tbMv_wtg9pGzRRSquvIxMdOE421uonx1W4LyRjJ2vyis3c1Ngf9Q';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }else{
+            dump($result);
+        }
+        curl_close ($ch);
+    }
 
 }
 

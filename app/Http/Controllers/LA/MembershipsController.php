@@ -247,9 +247,12 @@ class MembershipsController extends Controller
 
         $fetch_membership = DB::table('memberships')->where('id', $id)->first();
 
+        // Paypal Plan id
         $planId = $fetch_membership->plan_id;
         
+        // Stripe Plan id
         $stripeplanId = $fetch_membership->stripe_plan_id;        
+        
         
         // updating plan id if plan is not lifetime
         
@@ -284,7 +287,11 @@ class MembershipsController extends Controller
 
 				// Paypal Subscription Updation
 
-				$this->deletePaypalPlan($planId);		
+				if (!empty($planId)) {
+					
+					// $this->deletePaypalPlan($planId);
+					
+				}
 				
 
 	        }        	
@@ -441,23 +448,33 @@ class MembershipsController extends Controller
 
 	public function createdPaypalPlan($membership_name, $cost, $subscription_period, $frequency, $frequencyInterval, $type){
 
+		
+
+
 		$plan = new Plan();
+
+		// $createdPlan = $plan->get('P-4W098018EC1196724ETRRFJI', $this->apiContext);
+
+		// $result = $createdPlan->delete($this->apiContext);
+
+		// dump($createdPlan);
+		// exit();
 
 		$patch = new Patch();
 
-	    $patchRequest = new PatchRequest();		
+	    $patchRequest = new PatchRequest();	
 
 		$plan->setName($membership_name)
 		    ->setDescription("Membership Name: ".$membership_name."<br>Type: ".$type."<br>Cost: ".$cost."<br>Subscription Period: ".$subscription_period)
-		    ->setType('fixed');  
+		    ->setType('infinite');  
 
 		$paymentDefinition = new PaymentDefinition();
 
-		$paymentDefinition->setName('Regular Payments')
+		$paymentDefinition->setName('Infinite Payments')
 		    ->setType('REGULAR')
 		    ->setFrequency($frequency)
 		    ->setFrequencyInterval($frequencyInterval)
-		    ->setCycles("1")
+		    ->setCycles("0")
 		    ->setAmount(new Currency(array('value' => $cost, 'currency' => 'USD')));
 
 		$merchantPreferences = new MerchantPreferences();
@@ -480,7 +497,7 @@ class MembershipsController extends Controller
 		$createdPlan = $plan->get($plan_id, $this->apiContext);
 		
 		$value = new PayPalModel('{		    		
-		       "state":"ACTIVE"
+		       "state":"ACTIVE"		      
 		     }');			
 
 	    $patch->setOp('replace')
@@ -492,7 +509,7 @@ class MembershipsController extends Controller
 	    $createdPlan->update($patchRequest, $this->apiContext);
 
 		$updatedPlan = $plan->get($plan_id, $this->apiContext);
-		
+
 		return $plan_id;
 	}
 
