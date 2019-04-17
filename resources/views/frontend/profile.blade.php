@@ -154,10 +154,10 @@ else{
 								    					<input type="hidden" name="membership_type" value="{{ $membership[0]->type }}">
 								    					<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
-								    					@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
+								    					{{-- @if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 								    						<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
 								    						<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
-								    					@endif
+								    					@endif --}}
 								    					@if (Auth::user()->membership_id == $membership[0]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
@@ -195,10 +195,10 @@ else{
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
 							    						
-							    						@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
+							    						{{-- @if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
 							    							<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
-							    						@endif
+							    						@endif --}}
 							    						@if (Auth::user()->membership_id == $membership[0]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
@@ -236,10 +236,10 @@ else{
 						    							<input type="hidden" name="subscription_period" value="{{ $membership[1]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[1]->id)? 'true': 'false' }}">
 						    							
-						    							@if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
+						    							{{-- @if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
 						    								<input type="hidden" name="planId" value="{{ $membership[1]->plan_id }}">								    						
 						    								<input type="hidden" name="stripeplanId" value="{{ $membership[1]->stripe_plan_id }}">								    						
-						    							@endif
+						    							@endif --}}
 						    							@if (Auth::user()->membership_id == $membership[1]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
@@ -276,10 +276,10 @@ else{
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[0]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[0]->id)? 'true': 'false' }}">
 							    						
-							    						@if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
+							    						{{-- @if ($membership[0]->type == 'Paid' && $membership[0]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[0]->plan_id }}">								    						
 							    							<input type="hidden" name="stripeplanId" value="{{ $membership[0]->stripe_plan_id }}">								    						
-							    						@endif
+							    						@endif --}}
 							    						@if (Auth::user()->membership_id == $membership[0]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
@@ -314,10 +314,10 @@ else{
 								    					<input type="hidden" name="membership_type" value="{{ $membership[1]->type }}">
 								    					<input type="hidden" name="subscription_period" value="{{ $membership[1]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[1]->id)? 'true': 'false' }}">
-								    					@if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
+								    					{{-- @if ($membership[1]->type == 'Paid' && $membership[1]->subscription_period != 'Lifetime')
 								    						<input type="hidden" name="planId" value="{{ $membership[1]->plan_id }}">								    						
 								    						<input type="hidden" name="stripeplanId" value="{{ $membership[1]->stripe_plan_id }}">								    						
-								    					@endif
+								    					@endif --}}
 								    					@if (Auth::user()->membership_id == $membership[1]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}
@@ -352,10 +352,10 @@ else{
 							    						<input type="hidden" name="membership_type" value="{{ $membership[2]->type }}">
 							    						<input type="hidden" name="subscription_period" value="{{ $membership[2]->subscription_period }}">
 								    					<input type="hidden" name="unsubscribe" value="{{ (Auth::user()->membership_id == $membership[2]->id)? 'true': 'false' }}">
-							    						@if ($membership[2]->type == 'Paid' && $membership[2]->subscription_period != 'Lifetime')
+							    						{{-- @if ($membership[2]->type == 'Paid' && $membership[2]->subscription_period != 'Lifetime')
 							    							<input type="hidden" name="planId" value="{{ $membership[2]->plan_id }}">								    						
 							    							<input type="hidden" name="stripeplanId" value="{{ $membership[2]->stripe_plan_id }}">								    						
-							    						@endif
+							    						@endif --}}
 							    						@if (Auth::user()->membership_id == $membership[2]->id)
 								    						
 								    					{!! Form::submit('Unsubscribe', ['class'=>'btn btn-danger']) !!}

@@ -108,41 +108,42 @@ class MembershipsController extends Controller
 	public function store(Request $request)
 	{	
 
-		$random_number = $this->randomNumber();
-
 		// Subscription Plan
 
-		if ($request->subscription_period != 'Lifetime') {
+		// $random_number = $this->randomNumber();
+
+		// if ($request->subscription_period != 'Lifetime') {
 			
-			if($request->cost > 0 && $request->type == 'Paid'){
+		// 	if($request->cost > 0 && $request->type == 'Paid'){
 
-				$frequency_interval = explode(' ', $request->subscription_period);
+		// 		$frequency_interval = explode(' ', $request->subscription_period);
 
-				$frequency = $frequency_interval[1];
+		// 		$frequency = $frequency_interval[1];
 				
-				$frequencyInterval = $frequency_interval[0];			
+		// 		$frequencyInterval = $frequency_interval[0];			
 
-				// Create Stripe Plan 				
-				$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $request->cost, $request->membership_name);
+		// 		// Create Stripe Plan 				
+		// 		$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $request->cost, $request->membership_name);
 
-				$stripePlanID = $random_number;
+		// 		$stripePlanID = $random_number;
 
 
-				// Create Paypal Plan 
-				$paypalPlanId = $this->createdPaypalPlan($request->membership_name, $request->cost, $request->subscription_period, $frequency, $frequencyInterval, $request->type);
+		// 		// Create Paypal Plan 
+		// 		$paypalPlanId = $this->createdPaypalPlan($request->membership_name, $request->cost, $request->subscription_period, $frequency, $frequencyInterval, $request->type);
 
-					$plan_id = $paypalPlanId;	
+		// 			$plan_id = $paypalPlanId;	
 				
-			}else{
-				$plan_id = '';
-				$stripePlanID = '';
-			}
+		// 	}else{
+		// 		$plan_id = '';
+		// 		$stripePlanID = '';
+		// 	}
 
-		}
-		else{
-				$plan_id = '';
-				$stripePlanID = '';				
-			}
+		// }
+		// else{
+		// 		$plan_id = '';
+		// 		$stripePlanID = '';				
+		// }
+
 
 
 		if(Module::hasAccess("Memberships", "create")) {
@@ -157,9 +158,9 @@ class MembershipsController extends Controller
 			
 			$insert_id = Module::insert("Memberships", $request);
 			
-			$update_planId = ['plan_id' => $plan_id, 'stripe_plan_id' => $stripePlanID];
+			// $update_planId = ['plan_id' => $plan_id, 'stripe_plan_id' => $stripePlanID];
 			
-			DB::table('memberships')->where('id', $insert_id)->update($update_planId);
+			// DB::table('memberships')->where('id', $insert_id)->update($update_planId);
 
 			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
 			
@@ -239,74 +240,76 @@ class MembershipsController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{		
-        $type = $request->type;
+        // $type = $request->type;
         
-        $cost = $request->cost;
+        // $cost = $request->cost;
         
-        $subscription_period = $request->subscription_period;        
+        // $subscription_period = $request->subscription_period;        
 
-        $fetch_membership = DB::table('memberships')->where('id', $id)->first();
+        // $fetch_membership = DB::table('memberships')->where('id', $id)->first();
 
-        // Paypal Plan id
-        $planId = $fetch_membership->plan_id;
+        // // Paypal Plan id
+        // $planId = $fetch_membership->plan_id;
         
-        // Stripe Plan id
-        $stripeplanId = $fetch_membership->stripe_plan_id;        
+        // // Stripe Plan id
+        // $stripeplanId = $fetch_membership->stripe_plan_id;        
         
         
         // updating plan id if plan is not lifetime
         
-        if ($subscription_period != 'Lifetime') {
+    //     if ($subscription_period != 'Lifetime') {
         
-	        if ($type == 'Paid' && $cost > 0) {	     
+	   //      if ($type == 'Paid' && $cost > 0) {	     
 	        	
-				$frequency_interval = explode(' ', $subscription_period);
+				// $frequency_interval = explode(' ', $subscription_period);
 
-				$frequency = $frequency_interval[1];
+				// $frequency = $frequency_interval[1];
 				
-				$frequencyInterval = $frequency_interval[0];
+				// $frequencyInterval = $frequency_interval[0];
 
-				// Stripe subscription updation				
+				// // Stripe subscription updation				
 
-				if (!empty($stripeplanId)) {
-					// first delete the plan
+				// if (!empty($stripeplanId)) {
+				// 	// first delete the plan
 					
-					$this->deleteStripePlan($stripeplanId);					
+				// 	$this->deleteStripePlan($stripeplanId);					
 
-					$this->stripePlanCreated($stripeplanId, $frequency, $frequencyInterval, $cost, $request->membership_name);
+				// 	$this->stripePlanCreated($stripeplanId, $frequency, $frequencyInterval, $cost, $request->membership_name);
 					
-				}else{
+				// }else{
 					
-					$random_number = $this->randomNumber();
+				// 	$random_number = $this->randomNumber();
 
-					$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $cost, $request->membership_name);
+				// 	$this->stripePlanCreated($random_number, $frequency, $frequencyInterval, $cost, $request->membership_name);
 
-					$stripeplanId = $random_number;
+				// 	$stripeplanId = $random_number;
 					
-				}			
+				// }			
 
-				// Paypal Subscription Updation
+				// // Paypal Subscription Updation
 
-				if (!empty($planId)) {
+				// if (!empty($planId)) {
 					
-					// $this->deletePaypalPlan($planId);
+				// 	// $this->deletePaypalPlan($planId);
 					
-				}
+				// }
 				
 
-	        }        	
-        }else{
-    		if (!empty($stripeplanId)) {
-    			$this->deleteStripePlan($stripeplanId);
-    			$stripeplanId = '';
-    		}
+	   //      }        	
+    //     }else{
+    // 		if (!empty($stripeplanId)) {
+    // 			$this->deleteStripePlan($stripeplanId);
+    // 			$stripeplanId = '';
+    // 		}
 
-    		if (!empty($planId)) {
-    			echo $planId;
-    			$planId = '';
-    		}  
+    // 		if (!empty($planId)) {
+    // 			echo $planId;
+    // 			$planId = '';
+    // 		}  
         	
-        }
+    //     }
+
+     
         
 		if(Module::hasAccess("Memberships", "edit")) {
 			
@@ -320,9 +323,9 @@ class MembershipsController extends Controller
 			
 			$insert_id = Module::updateRow("Memberships", $request, $id);
 
-			$update_planId = ['plan_id' => $planId, 'stripe_plan_id' => $stripeplanId];
+			// $update_planId = ['plan_id' => $planId, 'stripe_plan_id' => $stripeplanId];
 			
-			DB::table('memberships')->where('id', $insert_id)->update($update_planId);
+			// DB::table('memberships')->where('id', $insert_id)->update($update_planId);
 
 			return redirect()->route(config('laraadmin.adminRoute') . '.memberships.index');
 			
@@ -448,18 +451,9 @@ class MembershipsController extends Controller
 
 	public function createdPaypalPlan($membership_name, $cost, $subscription_period, $frequency, $frequencyInterval, $type){
 
-		
-
-
 		$plan = new Plan();
 
-		// $createdPlan = $plan->get('P-4W098018EC1196724ETRRFJI', $this->apiContext);
-
-		// $result = $createdPlan->delete($this->apiContext);
-
-		// dump($createdPlan);
-		// exit();
-
+		
 		$patch = new Patch();
 
 	    $patchRequest = new PatchRequest();	

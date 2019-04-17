@@ -1,8 +1,5 @@
 <?php
 
-Route::get('/createplan', 'IndexController@createPlan');
-
-
 
 /* ================== Frontend ================== */
 // Login
@@ -16,41 +13,52 @@ Route::post('/frontend/register_check', 'IndexController@register_check');
 
 Route::get('/forgot_password', 'IndexController@forgot_password');
 Route::post('/frontend/update_password', 'IndexController@update_password');
+
 // FAQ
 Route::get('/faq', 'IndexController@faq');
-
 
 // Subscription
 Route::get('/subscription', 'IndexController@subscription');
 
-
 // Homepage
 Route::get('/profile', 'IndexController@profile');
+
+
+	/*==============Payment Integration ======================*/
 
 // Payment Page
 Route::post('/payment_page', 'IndexController@payment_page');
 
-	/*============== for registration page ======================*/
-// Payment Integration
+// for registration page 
 Route::post('/payment_integration/{page}', 'IndexController@payment_integration');
-// Successfull Payment
-Route::get('/payment_succ/{id}/{page}', 'IndexController@successful_payment');
-// Update Membership
-Route::get('/update_membership/{id}/{page}', 'IndexController@update_membership');
 
-
-	/*============== for profile page ======================*/
-// Payment Integration
+// for profile page
 Route::post('/payment_integration', 'IndexController@payment_integration');
-// Successfull Payment
-Route::get('/payment_succ/{id}', 'IndexController@successful_payment');
-// Update Membership old
-// Route::get('/update_membership/{id}', 'IndexController@update_membership');
+
+// Update membership according to status
 Route::get('/update_membership/{status}', 'IndexController@update_membership');
 
 
+/*============================= CRON JOB  =============================*/
+Route::post('/cronjob', 'IndexController@cronJob');
+
+
+
+// Successfull Payment
+// Route::get('/payment_succ/{id}/{page}', 'IndexController@successful_payment');
+// Update Membership
+// Route::get('/update_membership/{id}/{page}', 'IndexController@update_membership');
+
+
+	
+// Successfull Payment
+// Route::get('/payment_succ/{id}', 'IndexController@successful_payment');
+// Update Membership old
+// Route::get('/update_membership/{id}', 'IndexController@update_membership');
+
+
 // Payment Failed
-Route::get('/payment_failed', 'IndexController@unsuccessful_payment');
+// Route::get('/payment_failed', 'IndexController@unsuccessful_payment');
 
 
 
